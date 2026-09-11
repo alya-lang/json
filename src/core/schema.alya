@@ -1,0 +1,266 @@
+# JSON Schema Validator
+# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+
+import "../types.alya"
+import "./utils.alya"
+
+function _map_has_key(m, target_key)
+    if m == null
+        return 0
+    end
+    let ks = keys(m)
+    let i = 0
+    while i < len(ks)
+        let k_str = str_from_ptr(ks[i])
+        if k_str == target_key
+            return 1
+        end
+        i += 1
+    end
+    return 0
+end
+
+function _value_in_enum(val, enum_list)
+    if enum_list == null
+        return 1
+    end
+    let i = 0
+    let count = len(enum_list)
+    while i < count
+        if val == enum_list[i] or str_from_ptr(val) == str_from_ptr(enum_list[i])
+            return 1
+        end
+        i += 1
+    end
+    return 0
+end
+
+function _validate_scalar(val, schema, path, errors)
+    if schema == null
+        return
+    end
+
+    # 1. Type validation for scalars
+    if _map_has_key(schema, "type")
+        let exp_type = schema["type"]
+        if exp_type == "null"
+            if val != null
+                errors.push(make_validation_error(path, "Expected null", "type"))
+                return
+            end
+        elif exp_type == "boolean"
+            if val != 0 and val != 1
+                errors.push(make_validation_error(path, "Expected boolean", "type"))
+                return
+            end
+        elif exp_type == "string"
+            if val == null
+                errors.push(make_validation_error(path, "Expected string, got null", "type"))
+                return
+            end
+        elif exp_type == "integer" or exp_type == "number"
+            if val == null
+                errors.push(make_validation_error(path, "Expected number, got null", "type"))
+                return
+            end
+        end
+    end
+
+    if val == null
+        return
+    end
+
+    # 2. Enum check
+    if _map_has_key(schema, "enum")
+        let allowed = schema["enum"]
+        if _value_in_enum(val, allowed) == 0
+            errors.push(make_validation_error(path, "Value is not an allowed enum value", "enum"))
+        end
+    end
+
+    # 3. Numeric range checks
+    if _map_has_key(schema, "minimum")
+        let min_val = schema["minimum"]
+        if val < min_val
+            errors.push(make_validation_error(path, "Value is less than minimum " + str(min_val), "minimum"))
+        end
+    end
+    if _map_has_key(schema, "maximum")
+        let max_val = schema["maximum"]
+        if val > max_val
+            errors.push(make_validation_error(path, "Value is greater than maximum " + str(max_val), "maximum"))
+        end
+    end
+
+    # 4. String length checks
+    if _map_has_key(schema, "minLength")
+        let min_len = schema["minLength"]
+        if len(val) < min_len
+            errors.push(make_validation_error(path, "String length is less than minLength " + str(min_len), "minLength"))
+        end
+    end
+    if _map_has_key(schema, "maxLength")
+        let max_len = schema["maxLength"]
+        if len(val) > max_len
+            errors.push(make_validation_error(path, "String length is greater than maxLength " + str(max_len), "maxLength"))
+        end
+    end
+end
+
+function _validate_property(val, schema, path, errors)
+    let t = ""
+    if _map_has_key(schema, "type")
+        t = schema["type"]
+    end
+    if t == "object" or t == "array"
+        _validate_node(val, schema, path, errors)
+    else
+        _validate_scalar(val, schema, path, errors)
+    end
+end
+
+function _validate_array_items(arr, item_schema, path, errors)
+    let item_type = ""
+    if _map_has_key(item_schema, "type")
+        item_type = item_schema["type"]
+    end
+    let count = len(arr)
+    let idx = 0
+    while idx < count
+        let item_path = path + "[" + str(idx) + "]"
+        if item_type == "object" or item_type == "array"
+            _validate_node(arr[idx], item_schema, item_path, errors)
+        else
+            _validate_scalar(arr[idx], item_schema, item_path, errors)
+        end
+        idx += 1
+    end
+end
+
+function _validate_node(data, schema, path, errors)
+    if schema == null
+        return
+    end
+
+    # 1. Type validation for composites
+    if _map_has_key(schema, "type")
+        let exp_type = schema["type"]
+        if exp_type == "array"
+            if data == null
+                errors.push(make_validation_error(path, "Expected array, got null", "type"))
+                return
+            end
+        elif exp_type == "object"
+            if data == null
+                errors.push(make_validation_error(path, "Expected object, got null", "type"))
+                return
+            end
+        end
+    end
+
+    if data == null
+        return
+    end
+
+    # 2. Array bounds and items
+    if _map_has_key(schema, "minItems")
+        let min_items = schema["minItems"]
+        if len(data) < min_items
+            errors.push(make_validation_error(path, "Array item count is less than minItems " + str(min_items), "minItems"))
+        end
+    end
+    if _map_has_key(schema, "maxItems")
+        let max_items = schema["maxItems"]
+        if len(data) > max_items
+            errors.push(make_validation_error(path, "Array item count is greater than maxItems " + str(max_items), "maxItems"))
+        end
+    end
+    if _map_has_key(schema, "items")
+        _validate_array_items(data, schema["items"], path, errors)
+    end
+
+    # 3. Object required properties
+    if _map_has_key(schema, "required")
+        let req_list = schema["required"]
+        let req_count = len(req_list)
+        let r = 0
+        while r < req_count
+            let req_key = str_from_ptr(req_list[r])
+            if _map_has_key(data, req_key) == 0
+                if len(path) > 0
+                    errors.push(make_validation_error(path + "." + req_key, "Missing required property: " + req_key, "required"))
+                else
+                    errors.push(make_validation_error(req_key, "Missing required property: " + req_key, "required"))
+                end
+            end
+            r += 1
+        end
+    end
+
+    # 4. Object properties
+    if _map_has_key(schema, "properties")
+        let props = schema["properties"]
+        let prop_keys = keys(props)
+        let p = 0
+        while p < len(prop_keys)
+            let p_key = str_from_ptr(prop_keys[p])
+            if _map_has_key(data, p_key) == 1
+                if len(path) > 0
+                    _validate_property(data[p_key], props[p_key], path + "." + p_key, errors)
+                else
+                    _validate_property(data[p_key], props[p_key], p_key, errors)
+                end
+            end
+            p += 1
+        end
+    end
+
+    # 5. Object additionalProperties check
+    if _map_has_key(schema, "additionalProperties")
+        let add_prop = schema["additionalProperties"]
+        if add_prop == 0
+            let declared_props = {}
+            if _map_has_key(schema, "properties")
+                declared_props = schema["properties"]
+            end
+            let data_keys = keys(data)
+            let d = 0
+            while d < len(data_keys)
+                let d_key = str_from_ptr(data_keys[d])
+                if _map_has_key(declared_props, d_key) == 0
+                    if len(path) > 0
+                        errors.push(make_validation_error(path + "." + d_key, "Additional property not allowed: " + d_key, "additionalProperties"))
+                    else
+                        errors.push(make_validation_error(d_key, "Additional property not allowed: " + d_key, "additionalProperties"))
+                    end
+                end
+                d += 1
+            end
+        end
+    end
+end
+
+function json_validate(data, schema)
+    let errors = []
+    let root_type = ""
+    if _map_has_key(schema, "type")
+        root_type = schema["type"]
+    end
+    if root_type == "object" or root_type == "array"
+        _validate_node(data, schema, "", errors)
+    elif root_type != ""
+        _validate_scalar(data, schema, "", errors)
+    else
+        _validate_node(data, schema, "", errors)
+    end
+    let is_valid = 0
+    if len(errors) == 0
+        is_valid = 1
+    end
+    return make_validation_result(is_valid, errors)
+end
+
+function json_is_valid_schema(data, schema)
+    let res = json_validate(data, schema)
+    return res.res_valid
+end

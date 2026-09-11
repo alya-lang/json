@@ -1,28 +1,78 @@
-# Test suite for json
+# Test suite for JSON Parser and Basic Primitives
 import "std/test"
-import "../src/lib.alya" as pkg
+import "../src/lib.alya" as json
 
 function main()
-    test_suite("json Test Suite")
+    test_suite("JSON Basic and Parser Test Suite")
     let r = runner_new()
 
-    # 1. Basic facade function
-    let res = pkg::hello("Alya")
-    runner_assert_str_eq(r, res, "Hello, Alya!", "pkg::hello returns formatted greeting")
+    # 1. Type constants & getters
+    runner_assert_eq(r, json::json_type_null(), 0, "json_type_null is 0")
+    runner_assert_eq(r, json::json_type_bool(), 1, "json_type_bool is 1")
+    runner_assert_eq(r, json::json_type_int(), 2, "json_type_int is 2")
+    runner_assert_eq(r, json::json_type_float(), 3, "json_type_float is 3")
+    runner_assert_eq(r, json::json_type_string(), 4, "json_type_string is 4")
+    runner_assert_eq(r, json::json_type_array(), 5, "json_type_array is 5")
+    runner_assert_eq(r, json::json_type_object(), 6, "json_type_object is 6")
 
-    # 2. Default parameter
-    let default_res = pkg::hello()
-    runner_assert_str_eq(r, default_res, "Hello, World!", "pkg::hello() uses default name")
+    # 2. Parsing primitives
+    let s_val = json::parse("\"Hello, Alya!\"")
+    runner_assert_str_eq(r, s_val, "Hello, Alya!", "parse string")
 
-    # 3. Modular types & config constructor
-    let cfg = pkg::new_config("Community", 3)
-    runner_assert_str_eq(r, cfg.name, "Community", "pkg::new_config sets name correctly")
-    runner_assert_str_eq(r, cfg.prefix, "Hello", "pkg::new_config sets default prefix")
-    runner_assert_eq(r, cfg.count, 3, "pkg::new_config sets count correctly")
+    let i_val = json::parse("42")
+    runner_assert_eq(r, i_val, 42, "parse positive integer")
 
-    # 4. Core custom formatter using struct
-    let custom_res = pkg::core_format_custom(cfg)
-    runner_assert_str_eq(r, custom_res, "Hello, Community!", "pkg::core_format_custom formats using config")
+    let neg_i_val = json::parse("-100")
+    runner_assert_eq(r, neg_i_val, -100, "parse negative integer")
+
+    let t_val = json::parse("true")
+    runner_assert_eq(r, t_val, 1, "parse true")
+
+    let f_val = json::parse("false")
+    runner_assert_eq(r, f_val, 0, "parse false")
+
+    let null_val = json::parse("null")
+    runner_assert_eq(r, null_val, null, "parse null")
+
+    # 3. String with escape sequences
+    let escaped = json::parse("\"Line1\\nLine2\\tTab\\\"Quote\\\"\"")
+    runner_assert_str_eq(r, escaped, "Line1\nLine2\tTab\"Quote\"", "parse string escapes")
+
+    # 4. Parsing simple array
+    let arr = json::parse_array("[10, 20, 30]")
+    runner_assert_eq(r, len(arr), 3, "array has 3 items")
+    runner_assert_eq(r, arr[0], 10, "arr[0] is 10")
+    runner_assert_eq(r, arr[1], 20, "arr[1] is 20")
+    runner_assert_eq(r, arr[2], 30, "arr[2] is 30")
+
+    # 5. Parsing simple object
+    let obj = json::parse("{\"title\": \"Alya Book\", \"pages\": 350}")
+    runner_assert_str_eq(r, obj["title"], "Alya Book", "obj title matches")
+    runner_assert_eq(r, obj["pages"], 350, "obj pages matches")
+
+    # 6. Nested object and array
+    let nested = json::parse("{\"user\": {\"name\": \"Alice\", \"roles\": [\"admin\", \"dev\"]}, \"active\": true}")
+    runner_assert_eq(r, nested["active"], 1, "nested active is 1")
+    let u = nested["user"]
+    runner_assert_str_eq(r, u["name"], "Alice", "nested user name is Alice")
+    let roles = u["roles"]
+    runner_assert_eq(r, len(roles), 2, "roles count is 2")
+    runner_assert_str_eq(r, roles[0], "admin", "roles[0] is admin")
+    runner_assert_str_eq(r, roles[1], "dev", "roles[1] is dev")
+
+    # 7. is_valid checks
+    runner_assert_eq(r, json::is_valid("{\"ok\": 1}"), 1, "valid JSON returns 1")
+    runner_assert_eq(r, json::is_valid("[1, 2, 3]"), 1, "valid array returns 1")
+    runner_assert_eq(r, json::is_valid("\"test\""), 1, "valid string returns 1")
+    runner_assert_eq(r, json::is_valid(""), 0, "empty string returns 0")
+    runner_assert_eq(r, json::is_valid("invalid json syntax"), 0, "syntax error returns 0")
+    runner_assert_eq(r, json::is_valid("{unquoted: 1}"), 0, "unquoted key returns 0")
+
+    # 8. Fast extractors
+    let raw_json = "{\"status\": \"success\", \"code\": 200, \"verified\": true}"
+    runner_assert_str_eq(r, json::json_get_string(raw_json, "status"), "success", "fast get string")
+    runner_assert_eq(r, json::json_get_number(raw_json, "code"), 200, "fast get number")
+    runner_assert_eq(r, json::json_get_bool(raw_json, "verified"), 1, "fast get bool")
 
     let failed = runner_summary(r)
     if failed > 0

@@ -1,0 +1,278 @@
+# JSON Serializer and Formatter
+# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+
+import "./utils.alya"
+
+function json_escape(s)
+    return json_escape_str(s)
+end
+
+function json_string(s)
+    return "\"" + json_escape(s) + "\""
+end
+
+function json_number(n)
+    return str(n)
+end
+
+function json_int(n)
+    return str(n)
+end
+
+function json_float(n)
+    let iv = int(n)
+    let fv = n - float(iv)
+    if fv < 0.0
+        fv = -fv
+    end
+    let frac = int(fv * 1000000.0 + 0.5)
+    if frac == 0
+        return str(iv) + ".0"
+    end
+    while frac % 10 == 0
+        frac = frac / 10
+    end
+    return str(iv) + "." + str(frac)
+end
+
+function json_null()
+    return "null"
+end
+
+function json_bool(b)
+    if b == 1
+        return "true"
+    else
+        return "false"
+    end
+end
+
+function json_kv(key, val)
+    return "\"" + json_escape(key) + "\": " + str(val)
+end
+
+function json_array(items)
+    let count = len(items)
+    if count == 0
+        return "[]"
+    end
+    let res = "["
+    let i = 0
+    while i < count
+        if i > 0
+            res = res + ", "
+        end
+        res = res + str(items[i])
+        i += 1
+    end
+    res = res + "]"
+    return res
+end
+
+function json_array_of_strings(items)
+    let count = len(items)
+    if count == 0
+        return "[]"
+    end
+    let res = "["
+    let i = 0
+    while i < count
+        if i > 0
+            res = res + ", "
+        end
+        res = res + json_string(items[i])
+        i += 1
+    end
+    res = res + "]"
+    return res
+end
+
+function json_array_of_numbers(items)
+    let count = len(items)
+    if count == 0
+        return "[]"
+    end
+    let res = "["
+    let i = 0
+    while i < count
+        if i > 0
+            res = res + ", "
+        end
+        res = res + str(items[i])
+        i += 1
+    end
+    res = res + "]"
+    return res
+end
+
+function json_array_of_bools(items)
+    let count = len(items)
+    if count == 0
+        return "[]"
+    end
+    let res = "["
+    let i = 0
+    while i < count
+        if i > 0
+            res = res + ", "
+        end
+        res = res + json_bool(items[i])
+        i += 1
+    end
+    res = res + "]"
+    return res
+end
+
+function json_object(m)
+    let k = keys(m)
+    let v = values(m)
+    let count = len(k)
+    if count == 0
+        return "{}"
+    end
+    let res = "{"
+    let i = 0
+    while i < count
+        if i > 0
+            res = res + ", "
+        end
+        res = res + "\"" + json_escape(k[i]) + "\": " + str(v[i])
+        i += 1
+    end
+    res = res + "}"
+    return res
+end
+
+function json_map(m)
+    return json_object(m)
+end
+
+function json_string_map(m)
+    let k = keys(m)
+    let v = values(m)
+    let count = len(k)
+    if count == 0
+        return "{}"
+    end
+    let res = "{"
+    let i = 0
+    while i < count
+        if i > 0
+            res = res + ", "
+        end
+        res = res + "\"" + json_escape(k[i]) + "\": \"" + json_escape(v[i]) + "\""
+        i += 1
+    end
+    res = res + "}"
+    return res
+end
+
+function json_minify(s)
+    let slen = len(s)
+    let res = ""
+    let in_string = 0
+    let escape_next = 0
+    let i = 0
+    while i < slen
+        let ch = char_at(s, i)
+        if escape_next
+            res += ch
+            escape_next = 0
+        else
+            if ch == "\\" and in_string
+                res += ch
+                escape_next = 1
+            elif ch == "\""
+                in_string = 1 - in_string
+                res += ch
+            else
+                if in_string
+                    res += ch
+                else
+                    if ch != " " and ch != "\t" and ch != "\r" and ch != "\n"
+                        res += ch
+                    end
+                end
+            end
+        end
+        i += 1
+    end
+    return res
+end
+
+function json_pretty(s, indent_spaces = 2)
+    let slen = len(s)
+    if slen == 0
+        return ""
+    end
+    let pad = ""
+    let p = 0
+    while p < indent_spaces
+        pad += " "
+        p += 1
+    end
+    let res = ""
+    let indent_level = 0
+    let in_string = 0
+    let escape_next = 0
+    let i = 0
+    let k = 0
+    let ch = ""
+    while i < slen
+        ch = char_at(s, i)
+        if escape_next
+            res += ch
+            escape_next = 0
+        else
+            if ch == "\\" and in_string
+                res += ch
+                escape_next = 1
+            elif ch == "\""
+                in_string = 1 - in_string
+                res += ch
+            else
+                if in_string
+                    res += ch
+                else
+                    if ch == "{" or ch == "["
+                        res += ch + "\n"
+                        indent_level += 1
+                        k = 0
+                        while k < indent_level
+                            res += pad
+                            k += 1
+                        end
+                    elif ch == "}" or ch == "]"
+                        res += "\n"
+                        indent_level -= 1
+                        k = 0
+                        while k < indent_level
+                            res += pad
+                            k += 1
+                        end
+                        res += ch
+                    elif ch == ","
+                        res += ",\n"
+                        k = 0
+                        while k < indent_level
+                            res += pad
+                            k += 1
+                        end
+                    elif ch == ":"
+                        res += ": "
+                    else
+                        if ch != " " and ch != "\t" and ch != "\r" and ch != "\n"
+                            res += ch
+                        end
+                    end
+                end
+            end
+        end
+        i += 1
+    end
+    return res
+end
+
+function json_stringify(val)
+    return str(val)
+end

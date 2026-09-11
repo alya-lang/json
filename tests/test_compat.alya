@@ -1,0 +1,56 @@
+# Test suite for 100% Backward Compatibility with std/json
+import "std/test"
+import "../src/lib.alya" as json
+
+function main()
+    test_suite("std/json Backward Compatibility Test Suite")
+    let r = runner_new()
+
+    # 1. Scalar formatters
+    runner_assert_str_eq(r, json::json_string("hello"), "\"hello\"", "json_string quotes string")
+    runner_assert_str_eq(r, json::json_number(42), "42", "json_number formats int")
+    runner_assert_str_eq(r, json::json_int(-10), "-10", "json_int formats negative int")
+    runner_assert_str_eq(r, json::json_null(), "null", "json_null returns null")
+    runner_assert_str_eq(r, json::json_bool(1), "true", "json_bool(1) returns true")
+    runner_assert_str_eq(r, json::json_bool(0), "false", "json_bool(0) returns false")
+    runner_assert_str_eq(r, json::json_kv("title", "\"Alya\""), "\"title\": \"Alya\"", "json_kv formats key-value")
+
+    # 2. Typed array formatters
+    let s_arr = ["apple", "banana"]
+    runner_assert_str_eq(r, json::json_array_of_strings(s_arr), "[\"apple\", \"banana\"]", "json_array_of_strings formats strings")
+
+    let n_arr = [1, 2, 3]
+    runner_assert_str_eq(r, json::json_array_of_numbers(n_arr), "[1, 2, 3]", "json_array_of_numbers formats numbers")
+
+    let b_arr = [1, 0, 1]
+    runner_assert_str_eq(r, json::json_array_of_bools(b_arr), "[true, false, true]", "json_array_of_bools formats bools")
+
+    # 3. Object / map serializer
+    let sample_map = {
+        "status": "ok"
+    }
+    let map_json = json::json_string_map(sample_map)
+    runner_assert_str_eq(r, map_json, "{\"status\": \"ok\"}", "json_string_map serializes correctly")
+
+    # 4. Fast extractors
+    let raw = "{\"name\": \"Gemini\", \"version\": 2}"
+    runner_assert_str_eq(r, json::json_get_string(raw, "name"), "Gemini", "json_get_string extracts correctly")
+    runner_assert_eq(r, json::json_get_number(raw, "version"), 2, "json_get_number extracts correctly")
+
+    # 5. Full parser & validator
+    let v_ok = json::json_is_valid("{\"ok\": true}")
+    runner_assert_eq(r, v_ok, 1, "json_is_valid returns 1 for valid json")
+
+    let v_bad = json::json_is_valid("{invalid")
+    runner_assert_eq(r, v_bad, 0, "json_is_valid returns 0 for invalid json")
+
+    let parsed = json::json_parse("{\"flag\": 1}")
+    runner_assert_eq(r, parsed["flag"], 1, "json_parse parses map")
+
+    let failed = runner_summary(r)
+    if failed > 0
+        exit(1)
+    end
+end
+
+main()

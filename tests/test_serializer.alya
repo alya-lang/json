@@ -1,0 +1,60 @@
+# Test suite for JSON Serializer, Formatter, Minifier, and Pretty Printer
+import "std/test"
+import "../src/lib.alya" as json
+
+function main()
+    test_suite("JSON Serializer Test Suite")
+    let r = runner_new()
+
+    # 1. Primitive formatting
+    runner_assert_str_eq(r, json::json_string("hello"), "\"hello\"", "json_string quotes text")
+    runner_assert_str_eq(r, json::json_string("line1\nline2"), "\"line1\\nline2\"", "json_string escapes newline")
+    runner_assert_str_eq(r, json::json_number(42), "42", "json_number formats integer")
+    runner_assert_str_eq(r, json::json_int(100), "100", "json_int formats integer")
+    runner_assert_str_eq(r, json::json_null(), "null", "json_null returns 'null'")
+    runner_assert_str_eq(r, json::json_bool(1), "true", "json_bool 1 is 'true'")
+    runner_assert_str_eq(r, json::json_bool(0), "false", "json_bool 0 is 'false'")
+    runner_assert_str_eq(r, json::json_kv("name", "\"Alya\""), "\"name\": \"Alya\"", "json_kv formats pair")
+
+    # 2. Array serialization
+    runner_assert_str_eq(r, json::json_array([]), "[]", "empty array is []")
+    let num_arr = [1, 2, 3]
+    runner_assert_str_eq(r, json::json_array_of_numbers(num_arr), "[1, 2, 3]", "json_array_of_numbers")
+    let str_arr = ["apple", "banana"]
+    runner_assert_str_eq(r, json::json_array_of_strings(str_arr), "[\"apple\", \"banana\"]", "json_array_of_strings")
+    let bool_arr = [1, 0, 1]
+    runner_assert_str_eq(r, json::json_array_of_bools(bool_arr), "[true, false, true]", "json_array_of_bools")
+
+    # 3. Object serialization
+    runner_assert_str_eq(r, json::json_object({}), "{}", "empty object is {}")
+    let simple_map = {"title": "Guide"}
+    let map_res = json::json_string_map(simple_map)
+    runner_assert_str_eq(r, map_res, "{\"title\": \"Guide\"}", "json_string_map formats pair")
+
+    # 4. JSON Minification
+    let formatted = "{\n  \"name\": \"Alya\",\n  \"active\": true\n}"
+    let minified = json::minify(formatted)
+    runner_assert_str_eq(r, minified, "{\"name\":\"Alya\",\"active\":true}", "minify strips non-string whitespace")
+
+    let preserved_spaces = "{\"greeting\": \"hello    world\"}"
+    let min_preserved = json::minify(preserved_spaces)
+    runner_assert_str_eq(r, min_preserved, "{\"greeting\":\"hello    world\"}", "minify preserves inner string whitespace")
+
+    # 5. JSON Pretty Printing
+    let compact_json = "{\"a\":1,\"b\":[10,20]}"
+    let pretty_json = json::pretty(compact_json, 2)
+    runner_assert(r, len(pretty_json) > len(compact_json), "pretty JSON is expanded with newlines")
+
+    # 6. Roundtrip test (Serialize -> Parse -> Verify)
+    let original_num = 12345
+    let serialized_num = json::json_number(original_num)
+    let parsed_back_num = json::parse(serialized_num)
+    runner_assert_eq(r, parsed_back_num, original_num, "roundtrip number preservation")
+
+    let failed = runner_summary(r)
+    if failed > 0
+        exit(1)
+    end
+end
+
+main()

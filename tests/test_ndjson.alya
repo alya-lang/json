@@ -1,0 +1,60 @@
+# Test suite for NDJSON Streaming Module
+import "std/test"
+import "../src/lib.alya" as json
+
+function main()
+    test_suite("NDJSON Streaming Test Suite")
+    let r = runner_new()
+
+    let sample_ndjson = "{\"id\":1,\"name\":\"Alice\",\"active\":true}\n{\"id\":2,\"name\":\"Bob\",\"active\":false}\n\n{\"id\":3,\"name\":\"Charlie\",\"active\":true}\n"
+
+    # 1. Count records
+    let count = json::ndjson_count(sample_ndjson)
+    runner_assert_eq(r, count, 3, "ndjson_count correctly ignores empty lines and finds 3 records")
+
+    # 2. Parse records
+    let records = json::ndjson_parse(sample_ndjson)
+    runner_assert_eq(r, len(records), 3, "ndjson_parse returned 3 records")
+
+    let r0 = records[0]
+    runner_assert_eq(r, r0["id"], 1, "record 0 id is 1")
+    runner_assert_str_eq(r, r0["name"], "Alice", "record 0 name is Alice")
+    runner_assert_eq(r, r0["active"], 1, "record 0 active is true (1)")
+
+    let r1 = records[1]
+    runner_assert_eq(r, r1["id"], 2, "record 1 id is 2")
+    runner_assert_str_eq(r, r1["name"], "Bob", "record 1 name is Bob")
+    runner_assert_eq(r, r1["active"], 0, "record 1 active is false (0)")
+
+    let r2 = records[2]
+    runner_assert_eq(r, r2["id"], 3, "record 2 id is 3")
+    runner_assert_str_eq(r, r2["name"], "Charlie", "record 2 name is Charlie")
+
+    # 3. Stringify records
+    let stringified = json::ndjson_stringify(records)
+    runner_assert(r, len(stringified) > 0, "ndjson_stringify returned non-empty string")
+
+    # 4. Roundtrip parse
+    let roundtrip_records = json::ndjson_parse(stringified)
+    runner_assert_eq(r, len(roundtrip_records), 3, "roundtrip parsed 3 records")
+    let rt0 = roundtrip_records[0]
+    runner_assert_eq(r, rt0["id"], 1, "roundtrip record 0 id matches")
+    runner_assert_str_eq(r, rt0["name"], "Alice", "roundtrip record 0 name matches")
+
+    # 5. Empty and edge cases
+    let empty_count = json::ndjson_count("")
+    runner_assert_eq(r, empty_count, 0, "empty text count is 0")
+
+    let empty_records = json::ndjson_parse("")
+    runner_assert_eq(r, len(empty_records), 0, "empty text records is 0")
+
+    let empty_stringified = json::ndjson_stringify([])
+    runner_assert_str_eq(r, empty_stringified, "", "empty list stringified is empty string")
+
+    let failed = runner_summary(r)
+    if failed > 0
+        exit(1)
+    end
+end
+
+main()

@@ -1,0 +1,63 @@
+# Newline-Delimited JSON (NDJSON / JSON Lines) Streaming Module
+# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+
+import "./utils.alya"
+import "./parser.alya"
+import "./serializer.alya"
+
+function ndjson_parse(text)
+    let s = str_from_ptr(text)
+    let raw_lines = s.split("\n")
+    let records = []
+    let i = 0
+    let count = len(raw_lines)
+    while i < count
+        let line = json_trim(raw_lines[i])
+        if len(line) > 0
+            let parsed = json_parse(line)
+            if parsed != null
+                records.push(parsed)
+            end
+        end
+        i += 1
+    end
+    return records
+end
+
+function ndjson_stringify(records)
+    if records == null
+        return ""
+    end
+    let count = len(records)
+    if count == 0
+        return ""
+    end
+    let res = ""
+    let i = 0
+    while i < count
+        let item = records[i]
+        let json_line = json_stringify(item)
+        if i > 0
+            res += "\n"
+        end
+        res += json_line
+        i += 1
+    end
+    return res
+end
+
+function ndjson_count(text)
+    let s = str_from_ptr(text)
+    let raw_lines = s.split("\n")
+    let total = 0
+    let i = 0
+    let count = len(raw_lines)
+    while i < count
+        let line = json_trim(raw_lines[i])
+        if len(line) > 0
+            total += 1
+        end
+        i += 1
+    end
+    return total
+end

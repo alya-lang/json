@@ -1,0 +1,135 @@
+# JSON Utility Functions
+# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+
+function json_is_digit(ch)
+    let c = ord(ch)
+    return c >= 48 and c <= 57
+end
+
+function json_is_whitespace(ch)
+    return ch == " " or ch == "\t" or ch == "\n" or ch == "\r"
+end
+
+function json_skip_ws(s, pos, slen)
+    while pos[0] < slen
+        let ch = char_at(s, pos[0])
+        if ch == " " or ch == "\t" or ch == "\n" or ch == "\r"
+            pos[0] = pos[0] + 1
+        else
+            break
+        end
+    end
+end
+
+function json_hex_val(ch)
+    let c = ord(ch)
+    if c >= 48 and c <= 57
+        return c - 48
+    elif c >= 65 and c <= 70
+        return c - 55
+    elif c >= 97 and c <= 102
+        return c - 87
+    end
+    return 0
+end
+
+function json_escape_str(s)
+    let slen = len(s)
+    let res = ""
+    let i = 0
+    let ch = ""
+    let c = 0
+    while i < slen
+        ch = char_at(s, i)
+        c = ord(ch)
+        when c
+            is 34 then res += "\\\""
+            is 92 then res += "\\\\"
+            is 10 then res += "\\n"
+            is 13 then res += "\\r"
+            is 9  then res += "\\t"
+            is 8  then res += "\\b"
+            is 12 then res += "\\f"
+            else res += ch
+        end
+        i += 1
+    end
+    return res
+end
+
+function json_unescape_str(s)
+    let slen = len(s)
+    let res = ""
+    let i = 0
+    while i < slen
+        let ch = char_at(s, i)
+        if ch == "\\" and i + 1 < slen
+            let esc = char_at(s, i + 1)
+            when esc
+                is "\"" then
+                    res += "\""
+                    i += 2
+                is "\\" then
+                    res += "\\"
+                    i += 2
+                is "/" then
+                    res += "/"
+                    i += 2
+                is "n" then
+                    res += "\n"
+                    i += 2
+                is "r" then
+                    res += "\r"
+                    i += 2
+                is "t" then
+                    res += "\t"
+                    i += 2
+                is "b" then
+                    res += chr(8)
+                    i += 2
+                is "f" then
+                    res += chr(12)
+                    i += 2
+                is "u" then
+                    if i + 5 < slen
+                        let h0 = json_hex_val(char_at(s, i + 2))
+                        let h1 = json_hex_val(char_at(s, i + 3))
+                        let h2 = json_hex_val(char_at(s, i + 4))
+                        let h3 = json_hex_val(char_at(s, i + 5))
+                        let code = h0 * 4096 + h1 * 256 + h2 * 16 + h3
+                        res += chr(code)
+                        i += 6
+                    else
+                        res += "\\u"
+                        i += 2
+                    end
+                else
+                    res += esc
+                    i += 2
+            end
+        else
+            res += ch
+            i += 1
+        end
+    end
+    return res
+end
+
+function json_trim(s)
+    let slen = len(s)
+    if slen == 0
+        return ""
+    end
+    let start = 0
+    while start < slen and json_is_whitespace(char_at(s, start))
+        start += 1
+    end
+    if start == slen
+        return ""
+    end
+    let end_idx = slen - 1
+    while end_idx > start and json_is_whitespace(char_at(s, end_idx))
+        end_idx -= 1
+    end
+    return substring(s, start, end_idx - start + 1)
+end

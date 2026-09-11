@@ -1,0 +1,59 @@
+# Test suite for Fluent JSON Builder
+import "std/test"
+import "../src/lib.alya" as json
+
+function main()
+    test_suite("Fluent JSON Builder Test Suite")
+    let r = runner_new()
+
+    # 1. Object builder
+    let b = json::builder_object()
+    json::jb_set_string(b, "project", "Alya")
+    json::jb_set_int(b, "stars", 1000)
+    json::jb_set_float(b, "score", 9.5)
+    json::jb_set_bool(b, "ready", 1)
+    json::jb_set_null(b, "extra")
+
+    let obj = json::jb_build(b)
+    runner_assert_str_eq(r, obj["project"], "Alya", "builder object has project")
+    runner_assert_eq(r, obj["stars"], 1000, "builder object has stars")
+    runner_assert_eq(r, obj["ready"], 1, "builder object has ready")
+    runner_assert(r, obj["extra"] == null, "builder object has null extra")
+
+    # 2. Array builder
+    let ab = json::builder_array()
+    json::jb_push_string(ab, "alpha")
+    json::jb_push_int(ab, 42)
+    json::jb_push_bool(ab, 0)
+
+    let arr = json::jb_build(ab)
+    runner_assert_eq(r, len(arr), 3, "builder array has 3 elements")
+    runner_assert_str_eq(r, arr[0], "alpha", "arr[0] is alpha")
+    runner_assert_eq(r, arr[1], 42, "arr[1] is 42")
+    runner_assert_eq(r, arr[2], 0, "arr[2] is 0")
+
+    # 3. Serialization of builder objects
+    let b_str = json::jb_to_json(b)
+    runner_assert(r, len(b_str) > 0, "jb_to_json produces non-empty string")
+    let parsed_b = json::parse(b_str)
+    runner_assert_str_eq(r, parsed_b["project"], "Alya", "roundtrip parsed project matches")
+    runner_assert_eq(r, parsed_b["stars"], 1000, "roundtrip parsed stars matches")
+
+    # 4. Serialization of builder array
+    let ab_str = json::jb_to_json(ab)
+    runner_assert(r, len(ab_str) > 0, "jb_to_json for array produces non-empty string")
+    let parsed_ab = json::parse_array(ab_str)
+    runner_assert_eq(r, len(parsed_ab), 3, "roundtrip parsed array length matches")
+    runner_assert_str_eq(r, parsed_ab[0], "alpha", "roundtrip parsed array item 0 matches")
+
+    # 5. Pretty printing from builder
+    let pretty_str = json::jb_to_pretty(b, 2)
+    runner_assert(r, len(pretty_str) > len(b_str), "pretty string is longer due to indentation")
+
+    let failed = runner_summary(r)
+    if failed > 0
+        exit(1)
+    end
+end
+
+main()

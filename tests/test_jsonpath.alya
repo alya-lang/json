@@ -1,0 +1,85 @@
+# Test suite for JSONPath and RFC 6901 JSON Pointer
+import "std/test"
+import "../src/lib.alya" as json
+
+function main()
+    test_suite("JSONPath and JSON Pointer Test Suite")
+    let r = runner_new()
+
+    # Setup sample dataset
+    let doc = {
+        "store": {
+            "name": "BookShop",
+            "city": "Istanbul",
+            "active": 1
+        },
+        "users": [
+            {"id": 1, "name": "Alice", "role": "admin"},
+            {"id": 2, "name": "Bob", "role": "editor"},
+            {"id": 3, "name": "Charlie", "role": "viewer"}
+        ],
+        "numbers": [100, 200, 300, 400]
+    }
+
+    # 1. Simple dot navigation
+    let store_name = json::query(doc, "store.name")
+    runner_assert_str_eq(r, store_name, "BookShop", "dot notation gets store.name")
+
+    let store_city = json::query(doc, "store.city")
+    runner_assert_str_eq(r, store_city, "Istanbul", "dot notation gets store.city")
+
+    # 2. Bracket notation for object property
+    let store_name_b = json::query(doc, "store[\"name\"]")
+    runner_assert_str_eq(r, store_name_b, "BookShop", "bracket notation gets store[\"name\"]")
+
+    # 3. Array indexing
+    let first_user_name = json::query(doc, "users[0].name")
+    runner_assert_str_eq(r, first_user_name, "Alice", "array index gets users[0].name")
+
+    let second_user_role = json::query(doc, "users[1].role")
+    runner_assert_str_eq(r, second_user_role, "editor", "array index gets users[1].role")
+
+    # 4. Negative array indexing (last item)
+    let last_user_name = json::query(doc, "users[-1].name")
+    runner_assert_str_eq(r, last_user_name, "Charlie", "negative index users[-1].name gets last user")
+
+    # 5. Wildcard extraction
+    let all_names = json::query(doc, "users[*].name")
+    runner_assert_eq(r, len(all_names), 3, "wildcard extracted 3 names")
+    runner_assert_str_eq(r, all_names[0], "Alice", "wildcard[0] is Alice")
+    runner_assert_str_eq(r, all_names[1], "Bob", "wildcard[1] is Bob")
+    runner_assert_str_eq(r, all_names[2], "Charlie", "wildcard[2] is Charlie")
+
+    # 6. RFC 6901 JSON Pointer
+    let ptr_store = json::pointer(doc, "/store/name")
+    runner_assert_str_eq(r, ptr_store, "BookShop", "json pointer /store/name")
+
+    let ptr_user0 = json::pointer(doc, "/users/0/name")
+    runner_assert_str_eq(r, ptr_user0, "Alice", "json pointer /users/0/name")
+
+    let ptr_user2_role = json::pointer(doc, "/users/2/role")
+    runner_assert_str_eq(r, ptr_user2_role, "viewer", "json pointer /users/2/role")
+
+    # 7. JSON Pointer escape characters (~1 -> /, ~0 -> ~)
+    let escaped_doc = {
+        "a/b": "slash_val",
+        "m~n": "tilde_val"
+    }
+    let slash_val = json::pointer(escaped_doc, "/a~1b")
+    runner_assert_str_eq(r, slash_val, "slash_val", "pointer unescapes ~1 as /")
+
+    let tilde_val = json::pointer(escaped_doc, "/m~0n")
+    runner_assert_str_eq(r, tilde_val, "tilde_val", "pointer unescapes ~0 as ~")
+
+    # 8. Existence checking
+    runner_assert_eq(r, json::json_path_exists(doc, "store.name"), 1, "path store.name exists")
+    runner_assert_eq(r, json::json_path_exists(doc, "store.unknown"), 0, "path store.unknown does not exist")
+    runner_assert_eq(r, json::json_path_exists(doc, "users[99]"), 0, "out of bounds index does not exist")
+
+    let failed = runner_summary(r)
+    if failed > 0
+        exit(1)
+    end
+end
+
+main()

@@ -1,26 +1,83 @@
-# Benchmark suite for json
+# Benchmark suite for alya-lang/json
 import "std/bench"
-import "../src/lib.alya" as pkg
+import "../src/lib.alya" as json
 
 function main()
-    let runner = bench_runner("json Micro-Benchmarks")
+    let runner = bench_runner("alya-lang/json High Performance Micro-Benchmarks")
 
-    bench_start(runner, 100000)
+    # 1. JSON Parser Benchmark
+    let raw = "{\"id\": 101, \"name\": \"Alya\", \"active\": true, \"scores\": [95, 88, 92]}"
+    bench_start(runner, 10000)
     let i = 0
-    while i < 100000
-        pkg::hello("Alya")
+    while i < 10000
+        let doc = json::json_parse(raw)
         i += 1
     end
-    bench_stop(runner, "hello() 100k calls")
+    bench_stop(runner, "JSON Parser (parse nested object)")
 
+    # 2. JSON Fast Validation Benchmark
     bench_start(runner, 50000)
+    let vi = 0
+    while vi < 50000
+        json::is_valid(raw)
+        vi += 1
+    end
+    bench_stop(runner, "Fast Validation (is_valid)")
+
+    # 3. JSON Serializer Benchmark
+    let sample = {
+        "title": "Language",
+        "version": 1,
+        "features": ["speed", "safety", "simplicity"]
+    }
+    bench_start(runner, 10000)
     let j = 0
-    while j < 50000
-        let cfg = pkg::new_config("Bench", 1)
-        pkg::core_format_custom(cfg)
+    while j < 10000
+        let s = json::stringify(sample)
         j += 1
     end
-    bench_stop(runner, "new_config() + format_custom() 50k calls")
+    bench_stop(runner, "JSON Serializer (stringify map & array)")
+
+    # 4. JSON Minifier Benchmark
+    let formatted = "{\n  \"status\": 200,\n  \"message\": \"OK\",\n  \"count\": 3\n}"
+    bench_start(runner, 50000)
+    let m = 0
+    while m < 50000
+        json::minify(formatted)
+        m += 1
+    end
+    bench_stop(runner, "JSON Minifier (strip whitespace)")
+
+    # 5. JSONPath Query Benchmark
+    let path_doc = json::parse("{\"store\": {\"book\": {\"price\": 19}}}")
+    bench_start(runner, 20000)
+    let p = 0
+    while p < 20000
+        json::query(path_doc, "store.book.price")
+        p += 1
+    end
+    bench_stop(runner, "JSONPath Query (store.book.price)")
+
+    # 6. JSON Schema Validation Benchmark
+    let schema = json::parse("{\"type\":\"object\",\"required\":[\"id\"],\"properties\":{\"id\":{\"type\":\"integer\"}}}")
+    let target = json::parse("{\"id\": 123}")
+    bench_start(runner, 20000)
+    let sc = 0
+    while sc < 20000
+        json::validate(target, schema)
+        sc += 1
+    end
+    bench_stop(runner, "JSON Schema Validation")
+
+    # 7. NDJSON Parsing Benchmark
+    let nd_data = "{\"id\":1}\n{\"id\":2}\n{\"id\":3}"
+    bench_start(runner, 10000)
+    let nd = 0
+    while nd < 10000
+        json::ndjson_read(nd_data)
+        nd += 1
+    end
+    bench_stop(runner, "NDJSON Streaming Parser")
 
     bench_summary(runner)
 end

@@ -1,16 +1,84 @@
-# Types and data structures for json
+# JSON Data Types & Model Definitions
 # Part of the Alya Language package ecosystem (https://github.com/alya-lang)
 
-struct JsonConfig
-    name
-    prefix
-    count
+# Type constants
+let JSON_TYPE_NULL = 0
+let JSON_TYPE_BOOL = 1
+let JSON_TYPE_INT = 2
+let JSON_TYPE_FLOAT = 3
+let JSON_TYPE_STRING = 4
+let JSON_TYPE_ARRAY = 5
+let JSON_TYPE_OBJECT = 6
+
+# Getter functions to avoid unresolved top-level identifier symbol pointers in function scope
+function json_type_null()
+    return 0
 end
 
-function make_config(name = "World", count = 1)
-    return JsonConfig {
-        name: name,
-        prefix: "Hello",
-        count: count
+function json_type_bool()
+    return 1
+end
+
+function json_type_int()
+    return 2
+end
+
+function json_type_float()
+    return 3
+end
+
+function json_type_string()
+    return 4
+end
+
+function json_type_array()
+    return 5
+end
+
+function json_type_object()
+    return 6
+end
+
+# Structs with distinct field prefixes to avoid cross-struct field collisions
+
+struct ValidationError
+    err_path
+    err_message
+    err_keyword
+end
+
+function make_validation_error(path, message, keyword = "")
+    return ValidationError {
+        err_path: path,
+        err_message: message,
+        err_keyword: keyword
+    }
+end
+
+struct ValidationResult
+    res_valid
+    res_errors
+end
+
+function make_validation_result(is_valid, errors = [])
+    return ValidationResult {
+        res_valid: is_valid,
+        res_errors: errors
+    }
+end
+
+struct JsonBuilder
+    jb_data
+    jb_is_array
+end
+
+function make_json_builder(is_array = 0)
+    let initial_data = {}
+    if is_array == 1
+        initial_data = []
+    end
+    return JsonBuilder {
+        jb_data: initial_data,
+        jb_is_array: is_array
     }
 end

@@ -1,0 +1,85 @@
+# Fluent JSON Builder
+# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+
+import "../types.alya"
+import "./serializer.alya"
+
+function json_builder_object()
+    return make_json_builder(0)
+end
+
+function json_builder_array()
+    return make_json_builder(1)
+end
+
+function jb_set(builder, key, val)
+    builder.jb_data[key] = val
+    return builder
+end
+
+function jb_set_string(builder, key, val)
+    builder.jb_data[key] = val
+    return builder
+end
+
+function jb_set_int(builder, key, val)
+    builder.jb_data[key] = val
+    return builder
+end
+
+function jb_set_float(builder, key, val)
+    builder.jb_data[key] = val
+    return builder
+end
+
+function jb_set_bool(builder, key, val)
+    builder.jb_data[key] = val
+    return builder
+end
+
+function jb_set_null(builder, key)
+    builder.jb_data[key] = null
+    return builder
+end
+
+function jb_push(builder, val)
+    builder.jb_data.push(val)
+    return builder
+end
+
+function jb_push_string(builder, val)
+    builder.jb_data.push(val)
+    return builder
+end
+
+function jb_push_int(builder, val)
+    builder.jb_data.push(val)
+    return builder
+end
+
+function jb_push_float(builder, val)
+    builder.jb_data.push(val)
+    return builder
+end
+
+function jb_push_bool(builder, val)
+    builder.jb_data.push(val)
+    return builder
+end
+
+function jb_build(builder)
+    return builder.jb_data
+end
+
+function jb_to_json(builder)
+    if builder.jb_is_array == 1
+        return json_array(builder.jb_data)
+    else
+        return json_object(builder.jb_data)
+    end
+end
+
+function jb_to_pretty(builder, indent = 2)
+    let s = jb_to_json(builder)
+    return json_pretty(s, indent)
+end

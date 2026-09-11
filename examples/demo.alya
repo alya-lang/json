@@ -1,15 +1,61 @@
-# Example usage of json
-import "../src/lib.alya" as pkg
+# Full Showcase Demo for alya-lang/json
+import "../src/lib.alya" as json
 
 function main()
-    # Basic greeting
-    let msg = pkg::hello("Alya Developer")
-    say msg
+    say "=== alya-lang/json Showcase Demo ==="
 
-    # Using configuration struct
-    let cfg = pkg::new_config("Modular Architecture", 5)
-    say "Target: " + cfg.name
-    say "Formatted: " + pkg::core_format_custom(cfg)
+    # 1. Parsing & Validation
+    let raw_payload = "{\"id\": 42, \"title\": \"Advanced JSON in Alya\", \"tags\": [\"fast\", \"safe\"], \"author\": {\"name\": \"Alya Dev\"}}"
+    say "\n[1] Parsing JSON payload:"
+    say "Raw input: " + raw_payload
+    let valid = json::is_valid(raw_payload)
+    say "Is valid JSON: " + str(valid)
+
+    let doc = json::parse(raw_payload)
+    say "Parsed ID: " + str(doc["id"])
+    say "Parsed Title: " + str_from_ptr(doc["title"])
+
+    # 2. JSONPath & JSON Pointer Query
+    say "\n[2] Querying with JSONPath & JSON Pointer:"
+    let author_name = json::query(doc, "author.name")
+    say "JSONPath 'author.name': " + str_from_ptr(author_name)
+
+    let tag0 = json::pointer(doc, "/tags/0")
+    say "JSON Pointer '/tags/0': " + str_from_ptr(tag0)
+
+    # 3. Serialization, Minify & Pretty Printing
+    say "\n[3] Serializing, Pretty Printing & Minifying:"
+    let pretty_str = json::pretty(raw_payload, 2)
+    say "Pretty formatted:\n" + pretty_str
+
+    let minified_str = json::minify(pretty_str)
+    say "Minified back: " + minified_str
+
+    # 4. JSON Schema Validation
+    say "\n[4] JSON Schema Validation:"
+    let schema_json = "{\"type\":\"object\",\"required\":[\"id\",\"title\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"title\":{\"type\":\"string\",\"minLength\":5}}}"
+    let schema = json::parse(schema_json)
+    let val_res = json::validate(doc, schema)
+    say "Validation valid: " + str(val_res.res_valid)
+    say "Validation errors count: " + str(len(val_res.res_errors))
+
+    # 5. NDJSON Streaming
+    say "\n[5] Streaming NDJSON:"
+    let nd_stream = "{\"metric\": \"cpu\", \"val\": 45}\n{\"metric\": \"mem\", \"val\": 68}"
+    let count = json::ndjson_count(nd_stream)
+    say "NDJSON record count: " + str(count)
+    let records = json::ndjson_read(nd_stream)
+    say "First record metric: " + str_from_ptr(records[0]["metric"])
+
+    # 6. Fluent Builder
+    say "\n[6] Fluent JSON Builder:"
+    let b = json::builder_object()
+    json::jb_set_int(b, "release", 2026)
+    json::jb_set_bool(b, "active", 1)
+    let b_str = json::jb_to_json(b)
+    say "Built JSON: " + b_str
+
+    say "\nAll features demonstrated successfully!"
 end
 
 main()

@@ -1,0 +1,195 @@
+# JSONPath and RFC 6901 JSON Pointer Evaluator
+# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+
+import "./utils.alya"
+
+function _jsonpath_is_int(token)
+    let tlen = len(token)
+    if tlen == 0
+        return 0
+    end
+    let i = 0
+    if char_at(token, 0) == "-"
+        if tlen == 1
+            return 0
+        end
+        i = 1
+    end
+    while i < tlen
+        let c = ord(char_at(token, i))
+        if c < 48 or c > 57
+            return 0
+        end
+        i += 1
+    end
+    return 1
+end
+
+function _jsonpath_split(path)
+    let plen = len(path)
+    let tokens = []
+    let i = 0
+    let cur = ""
+    while i < plen
+        let ch = char_at(path, i)
+        if ch == "."
+            if len(cur) > 0
+                tokens.push(cur)
+                cur = ""
+            end
+            i += 1
+        elif ch == "["
+            if len(cur) > 0
+                tokens.push(cur)
+                cur = ""
+            end
+            i += 1
+            let in_bracket = ""
+            while i < plen and char_at(path, i) != "]"
+                let bch = char_at(path, i)
+                if bch != "\"" and bch != "'"
+                    in_bracket += bch
+                end
+                i += 1
+            end
+            if i < plen and char_at(path, i) == "]"
+                i += 1
+            end
+            if len(in_bracket) > 0
+                tokens.push(in_bracket)
+            end
+        else
+            cur += ch
+            i += 1
+        end
+    end
+    if len(cur) > 0
+        tokens.push(cur)
+    end
+    return tokens
+end
+
+function _json_pointer_unescape(token)
+    let tlen = len(token)
+    let res = ""
+    let i = 0
+    while i < tlen
+        if char_at(token, i) == "~" and i + 1 < tlen
+            let next_ch = char_at(token, i + 1)
+            if next_ch == "1"
+                res += "/"
+                i += 2
+            elif next_ch == "0"
+                res += "~"
+                i += 2
+            else
+                res += "~"
+                i += 1
+            end
+        else
+            res += char_at(token, i)
+            i += 1
+        end
+    end
+    return res
+end
+
+function json_pointer_get(data, pointer)
+    if data == null or len(pointer) == 0
+        return data
+    end
+    if char_at(pointer, 0) != "/"
+        return null
+    end
+    let parts = pointer.split("/")
+    let curr = data
+    let i = 1
+    while i < len(parts)
+        if curr == null
+            return null
+        end
+        let part = _json_pointer_unescape(parts[i])
+        if _jsonpath_is_int(part)
+            let idx = int(part)
+            let arr_len = len(curr)
+            if idx >= 0 and idx < arr_len
+                curr = curr[idx]
+            else
+                return null
+            end
+        else
+            curr = curr[part]
+        end
+        i += 1
+    end
+    return curr
+end
+
+function _json_eval_tokens(data, tokens, start_idx)
+    let curr = data
+    let i = start_idx
+    let tcount = len(tokens)
+    while i < tcount
+        if curr == null
+            return null
+        end
+        let tok = str_from_ptr(tokens[i])
+        if tok == "*"
+            let res = []
+            let next_idx = i + 1
+            let arr_len = len(curr)
+            let j = 0
+            while j < arr_len
+                let item = curr[j]
+                if next_idx >= tcount
+                    res.push(item)
+                else
+                    let sub_val = _json_eval_tokens(item, tokens, next_idx)
+                    if sub_val != null
+                        res.push(sub_val)
+                    end
+                end
+                j += 1
+            end
+            return res
+        elif _jsonpath_is_int(tok)
+            let idx = int(tok)
+            let arr_len = len(curr)
+            if idx < 0
+                idx = arr_len + idx
+            end
+            if idx >= 0 and idx < arr_len
+                curr = curr[idx]
+            else
+                return null
+            end
+        else
+            curr = curr[tok]
+        end
+        i += 1
+    end
+    return curr
+end
+
+function json_path_query(data, path)
+    if data == null or len(path) == 0
+        return data
+    end
+    if char_at(path, 0) == "/"
+        return json_pointer_get(data, path)
+    end
+    let tokens = _jsonpath_split(path)
+    return _json_eval_tokens(data, tokens, 0)
+end
+
+function json_path_get(data, path)
+    return json_path_query(data, path)
+end
+
+function json_path_exists(data, path)
+    let val = json_path_query(data, path)
+    if val != null
+        return 1
+    end
+    return 0
+end
