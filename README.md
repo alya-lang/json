@@ -60,13 +60,13 @@ Add `json` to the `[dependencies]` section in your `alya.toml`:
 
 ```toml
 [dependencies]
-json = { git = "https://github.com/alya-lang/json", tag = "v0.1.0" }
+json = { git = "https://github.com/alya-lang/json", branch = "main" }
 ```
 
 Or install it directly using the Alya package CLI:
 
 ```bash
-alyac add json --git https://github.com/alya-lang/json --tag v0.1.0
+alyac add json --git https://github.com/alya-lang/json --branch main
 alyac install
 ```
 
