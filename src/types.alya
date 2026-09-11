@@ -1,0 +1,16 @@
+# Types and data structures for json
+# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+
+struct JsonConfig
+    name
+    prefix
+    count
+end
+
+function make_config(name = "World", count = 1)
+    return JsonConfig {
+        name: name,
+        prefix: "Hello",
+        count: count
+    }
+end

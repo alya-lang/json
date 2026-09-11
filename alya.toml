@@ -1,0 +1,13 @@
+[package]
+name = "json"
+version = "0.1.0"
+alya-version = "0.0.7"
+entry = "src/lib.alya"
+description = "RFC 8259 JSON parser, recursive serializer, JSONPath, JSON Schema validation, and NDJSON streaming for Alya"
+authors = ["Alya Language Contributors <https://github.com/alya-lang>"]
+license = "MIT"
+homepage = "https://github.com/alya-lang/alya"
+repository = "https://github.com/alya-lang/json"
+keywords = ["alya", "alya-lang", "package", "json", "parser", "serializer", "jsonpath", "json-schema", "ndjson"]
+
+[dependencies]
