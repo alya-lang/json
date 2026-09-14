@@ -20,8 +20,9 @@ function json_int(n)
 end
 
 function json_float(n)
-    let iv = int(n)
-    let fv = n - float(iv)
+    let fn = float(n)
+    let iv = int(fn)
+    let fv = fn - float(iv)
     if fv < 0.0
         fv = -fv
     end

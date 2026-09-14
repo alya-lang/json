@@ -14,56 +14,73 @@ end
 
 function jb_set(builder, key, val)
     builder.jb_data[key] = val
+    builder.jb_json_parts[key] = str(val)
     return builder
 end
 
 function jb_set_string(builder, key, val)
     builder.jb_data[key] = val
+    builder.jb_json_parts[key] = json_string(val)
     return builder
 end
 
 function jb_set_int(builder, key, val)
     builder.jb_data[key] = val
+    builder.jb_json_parts[key] = json_int(val)
     return builder
 end
 
 function jb_set_float(builder, key, val)
     builder.jb_data[key] = val
+    builder.jb_json_parts[key] = json_float(val)
     return builder
 end
 
 function jb_set_bool(builder, key, val)
     builder.jb_data[key] = val
+    builder.jb_json_parts[key] = json_bool(val)
     return builder
 end
 
 function jb_set_null(builder, key)
     builder.jb_data[key] = null
+    builder.jb_json_parts[key] = json_null()
     return builder
 end
 
 function jb_push(builder, val)
     builder.jb_data.push(val)
+    builder.jb_json_parts.push(str(val))
     return builder
 end
 
 function jb_push_string(builder, val)
     builder.jb_data.push(val)
+    builder.jb_json_parts.push(json_string(val))
     return builder
 end
 
 function jb_push_int(builder, val)
     builder.jb_data.push(val)
+    builder.jb_json_parts.push(json_int(val))
     return builder
 end
 
 function jb_push_float(builder, val)
     builder.jb_data.push(val)
+    builder.jb_json_parts.push(json_float(val))
     return builder
 end
 
 function jb_push_bool(builder, val)
     builder.jb_data.push(val)
+    builder.jb_json_parts.push(json_bool(val))
+    return builder
+end
+
+function jb_push_null(builder)
+    builder.jb_data.push(null)
+    builder.jb_json_parts.push(json_null())
     return builder
 end
 
@@ -73,9 +90,39 @@ end
 
 function jb_to_json(builder)
     if builder.jb_is_array == 1
-        return json_array(builder.jb_data)
+        let count = len(builder.jb_json_parts)
+        if count == 0
+            return "[]"
+        end
+        let res = "["
+        let i = 0
+        while i < count
+            if i > 0
+                res = res + ", "
+            end
+            res = res + builder.jb_json_parts[i]
+            i += 1
+        end
+        res = res + "]"
+        return res
     else
-        return json_object(builder.jb_data)
+        let k = keys(builder.jb_json_parts)
+        let count = len(k)
+        if count == 0
+            return "{}"
+        end
+        let res = "{"
+        let i = 0
+        while i < count
+            if i > 0
+                res = res + ", "
+            end
+            let key = k[i]
+            res = res + "\"" + json_escape(key) + "\": " + builder.jb_json_parts[key]
+            i += 1
+        end
+        res = res + "}"
+        return res
     end
 end
 

@@ -70,15 +70,19 @@ end
 struct JsonBuilder
     jb_data
     jb_is_array
+    jb_json_parts
 end
 
 function make_json_builder(is_array = 0)
     let initial_data = {}
+    let initial_parts = {}
     if is_array == 1
         initial_data = []
+        initial_parts = []
     end
     return JsonBuilder {
         jb_data: initial_data,
-        jb_is_array: is_array
+        jb_is_array: is_array,
+        jb_json_parts: initial_parts
     }
 end
