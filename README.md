@@ -18,7 +18,6 @@ High-performance RFC 8259 JSON parser, recursive serializer, JSONPath, JSON Sche
 - 🌊 **NDJSON Streaming**: Line-delimited JSON parsing, serialization, and stream counting for log aggregation and big data pipelines.
 - 🛠️ **Fluent JSON Builder**: Type-safe programmatically constructed JSON objects and arrays via chaining.
 - 🎨 **Formatters & Minifier**: Native `pretty` printing with configurable indentation levels and whitespace-stripping `minify`.
-- 🔄 **100% Backward Compatible**: Drop-in compatible replacement for standard library `std/json` APIs.
 
 ---
 
@@ -28,7 +27,7 @@ High-performance RFC 8259 JSON parser, recursive serializer, JSONPath, JSON Sche
 json/
 ├── alya.toml               # Package manifest
 ├── src/
-│   ├── lib.alya            # Public API facade & backward compatibility bindings
+│   ├── lib.alya            # Public API facade
 │   ├── types.alya          # Core struct definitions (ValidationResult, JsonBuilder)
 │   └── core/
 │       ├── utils.alya      # String escaping, unescaping, and character helpers
@@ -46,8 +45,7 @@ json/
 │   ├── test_jsonpath.alya  # JSONPath & JSON Pointer test suite (13 tests)
 │   ├── test_schema.alya    # JSON Schema validation test suite (11 tests)
 │   ├── test_ndjson.alya    # Streaming NDJSON test suite (10 tests)
-│   ├── test_builder.alya   # Fluent builder test suite (14 tests)
-│   └── test_compat.alya    # std/json backward compatibility suite (16 tests)
+│   └── test_builder.alya   # Fluent builder test suite (14 tests)
 └── benches/
     └── bench_basic.alya    # Performance micro-benchmarks
 ```
@@ -190,7 +188,6 @@ alyac run tests/test_jsonpath.alya
 alyac run tests/test_schema.alya
 alyac run tests/test_ndjson.alya
 alyac run tests/test_builder.alya
-alyac run tests/test_compat.alya
 ```
 
 Run benchmarks:
