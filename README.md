@@ -1,4 +1,4 @@
-# alya-lang/json
+# json
 
 [![CI](https://github.com/alya-lang/json/actions/workflows/ci.yml/badge.svg)](https://github.com/alya-lang/json/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/alya-lang/json?color=blue&label=License)](LICENSE)
