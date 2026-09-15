@@ -171,7 +171,7 @@ Measured on Windows 11 (AMD64, release build):
 
 ---
 
-## 🧪 Running Tests & Examples
+## 🧪 Running Tests & Benchmarks
 
 Run the entire automated test suite:
 
