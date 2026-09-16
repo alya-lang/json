@@ -18,7 +18,7 @@ function main()
     runner_assert_str_eq(r, obj["project"], "Alya", "builder object has project")
     runner_assert_eq(r, obj["stars"], 1000, "builder object has stars")
     runner_assert_eq(r, obj["ready"], 1, "builder object has ready")
-    runner_assert(r, obj["extra"] == null, "builder object has null extra")
+    runner_assert(r, obj["extra"] is null, "builder object has null extra")
 
     # 2. Array builder
     let ab = json::builder_array()
@@ -49,6 +49,14 @@ function main()
     # 5. Pretty printing from builder
     let pretty_str = json::jb_to_pretty(b, 2)
     runner_assert(r, len(pretty_str) > len(b_str), "pretty string is longer due to indentation")
+
+    # 6. Idiomatic Struct Methods on JsonBuilder
+    let mb = json::builder_object()
+    mb.add("name", "Modern Alya")
+    mb.add("version", "0.0.18")
+    let mobj = mb.build()
+    runner_assert_str_eq(r, mobj["name"], "Modern Alya", "method add name")
+    runner_assert_str_eq(r, mobj["version"], "0.0.18", "method add version")
 
     let failed = runner_summary(r)
     if failed > 0

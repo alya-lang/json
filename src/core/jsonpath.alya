@@ -76,15 +76,16 @@ function _json_pointer_unescape(token)
     while i < tlen
         if char_at(token, i) == "~" and i + 1 < tlen
             let next_ch = char_at(token, i + 1)
-            if next_ch == "1"
-                res += "/"
-                i += 2
-            elif next_ch == "0"
-                res += "~"
-                i += 2
-            else
-                res += "~"
-                i += 1
+            when next_ch
+                is "1" then
+                    res += "/"
+                    i += 2
+                is "0" then
+                    res += "~"
+                    i += 2
+                else
+                    res += "~"
+                    i += 1
             end
         else
             res += char_at(token, i)
@@ -94,8 +95,8 @@ function _json_pointer_unescape(token)
     return res
 end
 
-function json_pointer_get(data, pointer)
-    if data == null or len(pointer) == 0
+pub function json_pointer_get(data, pointer)
+    if data is null or len(pointer) == 0
         return data
     end
     if char_at(pointer, 0) != "/"
@@ -105,7 +106,7 @@ function json_pointer_get(data, pointer)
     let curr = data
     let i = 1
     while i < len(parts)
-        if curr == null
+        if curr is null
             return null
         end
         let part = _json_pointer_unescape(parts[i])
@@ -130,33 +131,29 @@ function _json_eval_tokens(data, tokens, start_idx)
     let i = start_idx
     let tcount = len(tokens)
     while i < tcount
-        if curr == null
+        if curr is null
             return null
         end
         let tok = str_from_ptr(tokens[i])
         if tok == "*"
             let res = []
             let next_idx = i + 1
-            let arr_len = len(curr)
-            let j = 0
-            while j < arr_len
-                let item = curr[j]
+            for item in curr
                 if next_idx >= tcount
                     res.push(item)
                 else
                     let sub_val = _json_eval_tokens(item, tokens, next_idx)
-                    if sub_val != null
+                    if sub_val is not null
                         res.push(sub_val)
                     end
                 end
-                j += 1
             end
             return res
         elif _jsonpath_is_int(tok)
             let idx = int(tok)
             let arr_len = len(curr)
             if idx < 0
-                idx = arr_len + idx
+                idx += arr_len
             end
             if idx >= 0 and idx < arr_len
                 curr = curr[idx]
@@ -171,8 +168,8 @@ function _json_eval_tokens(data, tokens, start_idx)
     return curr
 end
 
-function json_path_query(data, path)
-    if data == null or len(path) == 0
+pub function json_path_query(data, path)
+    if data is null or len(path) == 0
         return data
     end
     if char_at(path, 0) == "/"
@@ -182,13 +179,13 @@ function json_path_query(data, path)
     return _json_eval_tokens(data, tokens, 0)
 end
 
-function json_path_get(data, path)
+pub function json_path_get(data, path)
     return json_path_query(data, path)
 end
 
-function json_path_exists(data, path)
+pub function json_path_exists(data, path)
     let val = json_path_query(data, path)
-    if val != null
+    if val is not null
         return 1
     end
     return 0

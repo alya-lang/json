@@ -4,91 +4,183 @@
 import "../types.alya"
 import "./serializer.alya"
 
-function json_builder_object()
+pub function json_builder_object()
     return make_json_builder(0)
 end
 
-function json_builder_array()
+pub function json_builder_array()
     return make_json_builder(1)
 end
 
-function jb_set(builder, key, val)
+# Primary Struct Methods on JsonBuilder
+pub function JsonBuilder.add(self, key, val)
+    self.jb_data[key] = val
+    self.jb_json_parts[key] = str(val)
+    return self
+end
+
+pub function JsonBuilder.set(self, key, val)
+    self.jb_data[key] = val
+    self.jb_json_parts[key] = str(val)
+    return self
+end
+
+pub function JsonBuilder.set_string(self, key, val)
+    self.jb_data[key] = val
+    self.jb_json_parts[key] = json_string(val)
+    return self
+end
+
+pub function JsonBuilder.set_int(self, key, val)
+    self.jb_data[key] = val
+    self.jb_json_parts[key] = json_int(val)
+    return self
+end
+
+pub function JsonBuilder.set_float(self, key, val)
+    self.jb_data[key] = val
+    self.jb_json_parts[key] = json_float(val)
+    return self
+end
+
+pub function JsonBuilder.set_bool(self, key, val)
+    self.jb_data[key] = val
+    self.jb_json_parts[key] = json_bool(val)
+    return self
+end
+
+pub function JsonBuilder.set_null(self, key)
+    self.jb_data[key] = null
+    self.jb_json_parts[key] = json_null()
+    return self
+end
+
+pub function JsonBuilder.push(self, val)
+    self.jb_data.push(val)
+    self.jb_json_parts.push(str(val))
+    return self
+end
+
+pub function JsonBuilder.push_string(self, val)
+    self.jb_data.push(val)
+    self.jb_json_parts.push(json_string(val))
+    return self
+end
+
+pub function JsonBuilder.push_int(self, val)
+    self.jb_data.push(val)
+    self.jb_json_parts.push(json_int(val))
+    return self
+end
+
+pub function JsonBuilder.push_float(self, val)
+    self.jb_data.push(val)
+    self.jb_json_parts.push(json_float(val))
+    return self
+end
+
+pub function JsonBuilder.push_bool(self, val)
+    self.jb_data.push(val)
+    self.jb_json_parts.push(json_bool(val))
+    return self
+end
+
+pub function JsonBuilder.push_null(self)
+    self.jb_data.push(null)
+    self.jb_json_parts.push(json_null())
+    return self
+end
+
+pub function JsonBuilder.build(self)
+    return self.jb_data
+end
+
+pub function JsonBuilder.to_json(self)
+    return jb_to_json(self)
+end
+
+pub function JsonBuilder.to_pretty(self, indent = 2)
+    return jb_to_pretty(self, indent)
+end
+
+# Backward-compatible functional interface
+pub function jb_set(builder, key, val)
     builder.jb_data[key] = val
     builder.jb_json_parts[key] = str(val)
     return builder
 end
 
-function jb_set_string(builder, key, val)
+pub function jb_set_string(builder, key, val)
     builder.jb_data[key] = val
     builder.jb_json_parts[key] = json_string(val)
     return builder
 end
 
-function jb_set_int(builder, key, val)
+pub function jb_set_int(builder, key, val)
     builder.jb_data[key] = val
     builder.jb_json_parts[key] = json_int(val)
     return builder
 end
 
-function jb_set_float(builder, key, val)
+pub function jb_set_float(builder, key, val)
     builder.jb_data[key] = val
     builder.jb_json_parts[key] = json_float(val)
     return builder
 end
 
-function jb_set_bool(builder, key, val)
+pub function jb_set_bool(builder, key, val)
     builder.jb_data[key] = val
     builder.jb_json_parts[key] = json_bool(val)
     return builder
 end
 
-function jb_set_null(builder, key)
+pub function jb_set_null(builder, key)
     builder.jb_data[key] = null
     builder.jb_json_parts[key] = json_null()
     return builder
 end
 
-function jb_push(builder, val)
+pub function jb_push(builder, val)
     builder.jb_data.push(val)
     builder.jb_json_parts.push(str(val))
     return builder
 end
 
-function jb_push_string(builder, val)
+pub function jb_push_string(builder, val)
     builder.jb_data.push(val)
     builder.jb_json_parts.push(json_string(val))
     return builder
 end
 
-function jb_push_int(builder, val)
+pub function jb_push_int(builder, val)
     builder.jb_data.push(val)
     builder.jb_json_parts.push(json_int(val))
     return builder
 end
 
-function jb_push_float(builder, val)
+pub function jb_push_float(builder, val)
     builder.jb_data.push(val)
     builder.jb_json_parts.push(json_float(val))
     return builder
 end
 
-function jb_push_bool(builder, val)
+pub function jb_push_bool(builder, val)
     builder.jb_data.push(val)
     builder.jb_json_parts.push(json_bool(val))
     return builder
 end
 
-function jb_push_null(builder)
+pub function jb_push_null(builder)
     builder.jb_data.push(null)
     builder.jb_json_parts.push(json_null())
     return builder
 end
 
-function jb_build(builder)
+pub function jb_build(builder)
     return builder.jb_data
 end
 
-function jb_to_json(builder)
+pub function jb_to_json(builder)
     if builder.jb_is_array == 1
         let count = len(builder.jb_json_parts)
         if count == 0
@@ -98,12 +190,12 @@ function jb_to_json(builder)
         let i = 0
         while i < count
             if i > 0
-                res = res + ", "
+                res += ", "
             end
-            res = res + builder.jb_json_parts[i]
+            res += builder.jb_json_parts[i]
             i += 1
         end
-        res = res + "]"
+        res += "]"
         return res
     else
         let k = keys(builder.jb_json_parts)
@@ -115,18 +207,18 @@ function jb_to_json(builder)
         let i = 0
         while i < count
             if i > 0
-                res = res + ", "
+                res += ", "
             end
             let key = k[i]
-            res = res + "\"" + json_escape(key) + "\": " + builder.jb_json_parts[key]
+            res += "\"" + json_escape(key) + "\": " + builder.jb_json_parts[key]
             i += 1
         end
-        res = res + "}"
+        res += "}"
         return res
     end
 end
 
-function jb_to_pretty(builder, indent = 2)
+pub function jb_to_pretty(builder, indent = 2)
     let s = jb_to_json(builder)
     return json_pretty(s, indent)
 end

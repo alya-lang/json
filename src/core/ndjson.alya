@@ -5,59 +5,46 @@ import "./utils.alya"
 import "./parser.alya"
 import "./serializer.alya"
 
-function ndjson_parse(text)
+pub function ndjson_parse(text)
     let s = str_from_ptr(text)
     let raw_lines = s.split("\n")
     let records = []
-    let i = 0
-    let count = len(raw_lines)
-    while i < count
-        let line = json_trim(raw_lines[i])
+    for raw_line in raw_lines
+        let line = json_trim(raw_line)
         if len(line) > 0
             let parsed = json_parse(line)
-            if parsed != null
+            if parsed is not null
                 records.push(parsed)
             end
         end
-        i += 1
     end
     return records
 end
 
-function ndjson_stringify(records)
-    if records == null
-        return ""
-    end
-    let count = len(records)
-    if count == 0
+pub function ndjson_stringify(records)
+    if records is null or len(records) == 0
         return ""
     end
     let res = ""
-    let i = 0
-    while i < count
-        let item = records[i]
+    for i, item in records
         let json_line = json_stringify(item)
         if i > 0
             res += "\n"
         end
         res += json_line
-        i += 1
     end
     return res
 end
 
-function ndjson_count(text)
+pub function ndjson_count(text)
     let s = str_from_ptr(text)
     let raw_lines = s.split("\n")
     let total = 0
-    let i = 0
-    let count = len(raw_lines)
-    while i < count
-        let line = json_trim(raw_lines[i])
+    for raw_line in raw_lines
+        let line = json_trim(raw_line)
         if len(line) > 0
             total += 1
         end
-        i += 1
     end
     return total
 end

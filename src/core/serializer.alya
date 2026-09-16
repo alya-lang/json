@@ -3,23 +3,23 @@
 
 import "./utils.alya"
 
-function json_escape(s)
+pub function json_escape(s)
     return json_escape_str(s)
 end
 
-function json_string(s)
+pub function json_string(s)
     return "\"" + json_escape(s) + "\""
 end
 
-function json_number(n)
+pub function json_number(n)
     return str(n)
 end
 
-function json_int(n)
+pub function json_int(n)
     return str(n)
 end
 
-function json_float(n)
+pub function json_float(n)
     let fn = float(n)
     let iv = int(fn)
     let fv = fn - float(iv)
@@ -31,144 +31,133 @@ function json_float(n)
         return str(iv) + ".0"
     end
     while frac % 10 == 0
-        frac = frac / 10
+        frac /= 10
     end
     return str(iv) + "." + str(frac)
 end
 
-function json_null()
+pub function json_null()
     return "null"
 end
 
-function json_bool(b)
-    if b == 1
-        return "true"
-    else
-        return "false"
+pub function json_bool(b)
+    return when b
+        is 1 => "true"
+        else => "false"
     end
 end
 
-function json_kv(key, val)
+pub function json_kv(key, val)
     return "\"" + json_escape(key) + "\": " + str(val)
 end
 
-function json_array(items)
+pub function json_array(items)
     let count = len(items)
     if count == 0
         return "[]"
     end
     let res = "["
-    let i = 0
-    while i < count
+    for i, item in items
         if i > 0
-            res = res + ", "
+            res += ", "
         end
-        res = res + str(items[i])
-        i += 1
+        res += str(item)
     end
-    res = res + "]"
+    res += "]"
     return res
 end
 
-function json_array_of_strings(items)
+pub function json_array_of_strings(items)
     let count = len(items)
     if count == 0
         return "[]"
     end
     let res = "["
-    let i = 0
-    while i < count
+    for i, item in items
         if i > 0
-            res = res + ", "
+            res += ", "
         end
-        res = res + json_string(items[i])
-        i += 1
+        res += json_string(item)
     end
-    res = res + "]"
+    res += "]"
     return res
 end
 
-function json_array_of_numbers(items)
+pub function json_array_of_numbers(items)
     let count = len(items)
     if count == 0
         return "[]"
     end
     let res = "["
-    let i = 0
-    while i < count
+    for i, item in items
         if i > 0
-            res = res + ", "
+            res += ", "
         end
-        res = res + str(items[i])
-        i += 1
+        res += str(item)
     end
-    res = res + "]"
+    res += "]"
     return res
 end
 
-function json_array_of_bools(items)
+pub function json_array_of_bools(items)
     let count = len(items)
     if count == 0
         return "[]"
     end
     let res = "["
-    let i = 0
-    while i < count
+    for i, item in items
         if i > 0
-            res = res + ", "
+            res += ", "
         end
-        res = res + json_bool(items[i])
-        i += 1
+        res += json_bool(item)
     end
-    res = res + "]"
+    res += "]"
     return res
 end
 
-function json_object(m)
+pub function json_object(m)
     let k = keys(m)
-    let v = values(m)
     let count = len(k)
     if count == 0
         return "{}"
     end
     let res = "{"
     let i = 0
-    while i < count
+    for key, val in m
         if i > 0
-            res = res + ", "
+            res += ", "
         end
-        res = res + "\"" + json_escape(k[i]) + "\": " + str(v[i])
+        res += "\"" + json_escape(key) + "\": " + str(val)
         i += 1
     end
-    res = res + "}"
+    res += "}"
     return res
 end
 
-function json_map(m)
+pub function json_map(m)
     return json_object(m)
 end
 
-function json_string_map(m)
+pub function json_string_map(m)
     let k = keys(m)
-    let v = values(m)
     let count = len(k)
     if count == 0
         return "{}"
     end
     let res = "{"
     let i = 0
-    while i < count
+    for key, val in m
         if i > 0
-            res = res + ", "
+            res += ", "
         end
-        res = res + "\"" + json_escape(k[i]) + "\": \"" + json_escape(v[i]) + "\""
+        res += "\"" + json_escape(key) + "\": \"" + json_escape(val) + "\""
         i += 1
     end
-    res = res + "}"
+    res += "}"
     return res
 end
 
-function json_minify(s)
+pub function json_minify(s)
     let slen = len(s)
     let res = ""
     let in_string = 0
@@ -201,7 +190,7 @@ function json_minify(s)
     return res
 end
 
-function json_pretty(s, indent_spaces = 2)
+pub function json_pretty(s, indent_spaces = 2)
     let slen = len(s)
     if slen == 0
         return ""
@@ -274,6 +263,6 @@ function json_pretty(s, indent_spaces = 2)
     return res
 end
 
-function json_stringify(val)
+pub function json_stringify(val)
     return str(val)
 end
