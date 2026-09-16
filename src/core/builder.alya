@@ -12,7 +12,53 @@ pub function json_builder_array()
     return make_json_builder(1)
 end
 
-# Primary Struct Methods on JsonBuilder
+# --- Primary Serialization Functions ---
+
+pub function to_json(builder)
+    if builder.jb_is_array == 1
+        let count = len(builder.jb_json_parts)
+        if count == 0
+            return "[]"
+        end
+        let res = "["
+        let i = 0
+        while i < count
+            if i > 0
+                res += ", "
+            end
+            res += builder.jb_json_parts[i]
+            i += 1
+        end
+        res += "]"
+        return res
+    else
+        let k = keys(builder.jb_json_parts)
+        let count = len(k)
+        if count == 0
+            return "{}"
+        end
+        let res = "{"
+        let i = 0
+        while i < count
+            if i > 0
+                res += ", "
+            end
+            let key = k[i]
+            res += "\"" + json_escape(key) + "\": " + builder.jb_json_parts[key]
+            i += 1
+        end
+        res += "}"
+        return res
+    end
+end
+
+pub function to_pretty(builder, indent = 2)
+    let s = to_json(builder)
+    return json_pretty(s, indent)
+end
+
+# --- Struct Methods on JsonBuilder ---
+
 pub function JsonBuilder.add(self, key, val)
     self.jb_data[key] = val
     self.jb_json_parts[key] = str(val)
@@ -96,129 +142,9 @@ pub function JsonBuilder.build(self)
 end
 
 pub function JsonBuilder.to_json(self)
-    return jb_to_json(self)
+    return to_json(self)
 end
 
 pub function JsonBuilder.to_pretty(self, indent = 2)
-    return jb_to_pretty(self, indent)
-end
-
-# Backward-compatible functional interface
-pub function jb_set(builder, key, val)
-    builder.jb_data[key] = val
-    builder.jb_json_parts[key] = str(val)
-    return builder
-end
-
-pub function jb_set_string(builder, key, val)
-    builder.jb_data[key] = val
-    builder.jb_json_parts[key] = json_string(val)
-    return builder
-end
-
-pub function jb_set_int(builder, key, val)
-    builder.jb_data[key] = val
-    builder.jb_json_parts[key] = json_int(val)
-    return builder
-end
-
-pub function jb_set_float(builder, key, val)
-    builder.jb_data[key] = val
-    builder.jb_json_parts[key] = json_float(val)
-    return builder
-end
-
-pub function jb_set_bool(builder, key, val)
-    builder.jb_data[key] = val
-    builder.jb_json_parts[key] = json_bool(val)
-    return builder
-end
-
-pub function jb_set_null(builder, key)
-    builder.jb_data[key] = null
-    builder.jb_json_parts[key] = json_null()
-    return builder
-end
-
-pub function jb_push(builder, val)
-    builder.jb_data.push(val)
-    builder.jb_json_parts.push(str(val))
-    return builder
-end
-
-pub function jb_push_string(builder, val)
-    builder.jb_data.push(val)
-    builder.jb_json_parts.push(json_string(val))
-    return builder
-end
-
-pub function jb_push_int(builder, val)
-    builder.jb_data.push(val)
-    builder.jb_json_parts.push(json_int(val))
-    return builder
-end
-
-pub function jb_push_float(builder, val)
-    builder.jb_data.push(val)
-    builder.jb_json_parts.push(json_float(val))
-    return builder
-end
-
-pub function jb_push_bool(builder, val)
-    builder.jb_data.push(val)
-    builder.jb_json_parts.push(json_bool(val))
-    return builder
-end
-
-pub function jb_push_null(builder)
-    builder.jb_data.push(null)
-    builder.jb_json_parts.push(json_null())
-    return builder
-end
-
-pub function jb_build(builder)
-    return builder.jb_data
-end
-
-pub function jb_to_json(builder)
-    if builder.jb_is_array == 1
-        let count = len(builder.jb_json_parts)
-        if count == 0
-            return "[]"
-        end
-        let res = "["
-        let i = 0
-        while i < count
-            if i > 0
-                res += ", "
-            end
-            res += builder.jb_json_parts[i]
-            i += 1
-        end
-        res += "]"
-        return res
-    else
-        let k = keys(builder.jb_json_parts)
-        let count = len(k)
-        if count == 0
-            return "{}"
-        end
-        let res = "{"
-        let i = 0
-        while i < count
-            if i > 0
-                res += ", "
-            end
-            let key = k[i]
-            res += "\"" + json_escape(key) + "\": " + builder.jb_json_parts[key]
-            i += 1
-        end
-        res += "}"
-        return res
-    end
-end
-
-pub function jb_to_pretty(builder, indent = 2)
-    let s = jb_to_json(builder)
-    return json_pretty(s, indent)
+    return to_pretty(self, indent)
 end

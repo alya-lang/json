@@ -6,14 +6,14 @@ function main()
     test_suite("JSON Basic and Parser Test Suite")
     let r = runner_new()
 
-    # 1. Type constants & getters
-    runner_assert_eq(r, json::json_type_null(), 0, "json_type_null is 0")
-    runner_assert_eq(r, json::json_type_bool(), 1, "json_type_bool is 1")
-    runner_assert_eq(r, json::json_type_int(), 2, "json_type_int is 2")
-    runner_assert_eq(r, json::json_type_float(), 3, "json_type_float is 3")
-    runner_assert_eq(r, json::json_type_string(), 4, "json_type_string is 4")
-    runner_assert_eq(r, json::json_type_array(), 5, "json_type_array is 5")
-    runner_assert_eq(r, json::json_type_object(), 6, "json_type_object is 6")
+    # 1. JsonType enum values
+    runner_assert_eq(r, json::JsonType.Null,   0, "JsonType.Null is 0")
+    runner_assert_eq(r, json::JsonType.Bool,   1, "JsonType.Bool is 1")
+    runner_assert_eq(r, json::JsonType.Int,    2, "JsonType.Int is 2")
+    runner_assert_eq(r, json::JsonType.Float,  3, "JsonType.Float is 3")
+    runner_assert_eq(r, json::JsonType.String, 4, "JsonType.String is 4")
+    runner_assert_eq(r, json::JsonType.Array,  5, "JsonType.Array is 5")
+    runner_assert_eq(r, json::JsonType.Object, 6, "JsonType.Object is 6")
 
     # 2. Parsing primitives
     let s_val = json::parse("\"Hello, Alya!\"")

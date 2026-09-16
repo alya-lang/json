@@ -1,7 +1,6 @@
 # JSON Data Types & Model Definitions
 # Part of the Alya Language package ecosystem (https://github.com/alya-lang)
 
-# Public enum for JSON types
 pub enum JsonType
     Null,
     Bool,
@@ -11,46 +10,6 @@ pub enum JsonType
     Array,
     Object
 end
-
-# Backward-compatible type constants
-pub let JSON_TYPE_NULL = 0
-pub let JSON_TYPE_BOOL = 1
-pub let JSON_TYPE_INT = 2
-pub let JSON_TYPE_FLOAT = 3
-pub let JSON_TYPE_STRING = 4
-pub let JSON_TYPE_ARRAY = 5
-pub let JSON_TYPE_OBJECT = 6
-
-# Getter functions for backward compatibility
-pub function json_type_null()
-    return JsonType.Null
-end
-
-pub function json_type_bool()
-    return JsonType.Bool
-end
-
-pub function json_type_int()
-    return JsonType.Int
-end
-
-pub function json_type_float()
-    return JsonType.Float
-end
-
-pub function json_type_string()
-    return JsonType.String
-end
-
-pub function json_type_array()
-    return JsonType.Array
-end
-
-pub function json_type_object()
-    return JsonType.Object
-end
-
-# Structs with distinct field prefixes to avoid cross-struct field collisions
 
 pub struct ValidationError
     err_path,

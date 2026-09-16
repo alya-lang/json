@@ -50,9 +50,9 @@ function main()
     # 6. Fluent Builder
     say "\n[6] Fluent JSON Builder:"
     let b = json::builder_object()
-    json::jb_set_int(b, "release", 2026)
-    json::jb_set_bool(b, "active", 1)
-    let b_str = json::jb_to_json(b)
+    b.set_int("release", 2026)
+    b.set_bool("active", 1)
+    let b_str = b.to_json()
     say "Built JSON: " + b_str
 
     say "\nAll features demonstrated successfully!"
