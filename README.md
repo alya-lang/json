@@ -64,8 +64,8 @@ json = { git = "https://github.com/alya-lang/json", branch = "main" }
 Or install it directly using the Alya package CLI:
 
 ```bash
-alyac add json --git https://github.com/alya-lang/json --branch main
-alyac install
+alya add json --git https://github.com/alya-lang/json --branch main
+alya install
 ```
 
 ---
@@ -176,36 +176,36 @@ Measured on Windows 11 (AMD64, release build):
 Run the entire automated test suite:
 
 ```bash
-alyac test
+alya test
 ```
 
 Run individual test suites:
 
 ```bash
-alyac run tests/test_basic.alya
-alyac run tests/test_serializer.alya
-alyac run tests/test_jsonpath.alya
-alyac run tests/test_schema.alya
-alyac run tests/test_ndjson.alya
-alyac run tests/test_builder.alya
+alya run tests/test_basic.alya
+alya run tests/test_serializer.alya
+alya run tests/test_jsonpath.alya
+alya run tests/test_schema.alya
+alya run tests/test_ndjson.alya
+alya run tests/test_builder.alya
 ```
 
 Run benchmarks:
 
 ```bash
-alyac run benches/bench_basic.alya
+alya run benches/bench_basic.alya
 ```
 
 Run the showcase demo:
 
 ```bash
-alyac run examples/demo.alya
+alya run examples/demo.alya
 ```
 
 Check source code formatting:
 
 ```bash
-alyac fmt . --check
+alya fmt . --check
 ```
 
 ---
@@ -218,8 +218,8 @@ Contributions are welcome! Please follow these steps:
 2. Create your feature branch (`git checkout -b feat/my-feature`)
 3. Ensure all tests and formatting pass:
    ```bash
-   alyac test
-   alyac fmt . --check
+   alya test
+   alya fmt . --check
    ```
 4. Commit your changes (`git commit -m "feat: add feature"`)
 5. Push to the branch and open a Pull Request
