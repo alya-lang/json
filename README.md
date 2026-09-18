@@ -12,7 +12,7 @@ High-performance RFC 8259 JSON parser, recursive serializer, JSONPath, JSON Sche
 ## 🌟 Features
 
 - ⚡ **RFC 8259 Compliant Parser**: Full support for objects, arrays, escaped strings, integers, floating-point numbers, booleans, and null.
-- 🚀 **Blazing Fast Microsecond Speeds**: Sub-5µs parse times with throughput up to 220,000+ ops/sec.
+- 🚀 **High Performance**: Optimized parser and serializer with minimal allocation overhead.
 - 🔍 **JSONPath & JSON Pointer (RFC 6901)**: Query nested structures easily using dot notation (`store.book.price`), wildcard array indexing (`users[*].id`), and pointer paths (`/users/0/name`).
 - 🛡️ **JSON Schema Validator**: Draft-07 inspired schema validator supporting `type`, `required`, `properties`, `minimum`, `maximum`, `minLength`, `maxLength`, `enum`, `items`, and `additionalProperties`.
 - 🌊 **NDJSON Streaming**: Line-delimited JSON parsing, serialization, and stream counting for log aggregation and big data pipelines.
@@ -155,54 +155,33 @@ main()
 
 ---
 
-## ⚡ Performance Benchmarks
+## 🧪 Running Tests, Benchmarks & Documentation
 
-Measured on Windows 11 (AMD64, release build):
-
-| Method | Mean (ns/op) | Throughput | Description |
-|---|---|---|---|
-| **JSON Parser** | 4.9 µs | 204,000 ops/s | Full parsing of nested JSON payload |
-| **Fast Validation** | 4.5 µs | 219,000 ops/s | `is_valid` structural validation |
-| **JSON Serializer** | 100 ns | 10,000,000 ops/s | Fast map/array serialization |
-| **JSON Minifier** | 1.7 µs | 574,000 ops/s | Whitespace extraction |
-| **JSONPath Query** | 350 ns | 2,850,000 ops/s | Nested dot-notation traversal |
-| **Schema Validation** | 2.6 µs | 384,000 ops/s | Schema constraint & type evaluation |
-| **NDJSON Parser** | 3.5 µs | 285,000 ops/s | Streaming line-delimited records |
-
----
-
-## 🧪 Running Tests & Benchmarks
-
-Run the entire automated test suite:
+Run the automated test suite using `alya test`:
 
 ```bash
 alya test
 ```
 
-Run individual test suites:
+Generate static API documentation:
 
 ```bash
-alya run tests/test_basic.alya
-alya run tests/test_serializer.alya
-alya run tests/test_jsonpath.alya
-alya run tests/test_schema.alya
-alya run tests/test_ndjson.alya
-alya run tests/test_builder.alya
+alya doc . -o docs --markdown
 ```
 
-Run benchmarks:
+Run the benchmark suite:
 
 ```bash
 alya run benches/bench_basic.alya
 ```
 
-Run the showcase demo:
+Run the example demo:
 
 ```bash
 alya run examples/demo.alya
 ```
 
-Check source code formatting:
+Check code formatting:
 
 ```bash
 alya fmt . --check
