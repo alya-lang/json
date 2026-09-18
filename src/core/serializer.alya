@@ -20,9 +20,9 @@ pub function json_int(n)
 end
 
 pub function json_float(n)
-    let fn = float(n)
-    let iv = int(fn)
-    let fv = fn - float(iv)
+    let flt = float(n)
+    let iv = int(flt)
+    let fv = flt - float(iv)
     if fv < 0.0
         fv = -fv
     end
