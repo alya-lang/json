@@ -1,6 +1,6 @@
 [package]
 name = "json"
-version = "0.5.0"
+version = "0.1.0"
 alya-version = "0.0.18"
 entry = "src/lib.alya"
 description = "RFC 8259 JSON parser, recursive serializer, JSONPath, JSON Schema validation, and NDJSON streaming for Alya"
