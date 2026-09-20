@@ -16,14 +16,14 @@ function _parser_parse_string(s, pos, slen)
             if pos[0] < slen
                 let esc = char_at(s, pos[0])
                 when esc
-                    is "\"" then res = res + "\""
-                    is "\\" then res = res + "\\"
-                    is "/"  then res = res + "/"
-                    is "n"  then res = res + "\n"
-                    is "r"  then res = res + "\r"
-                    is "t"  then res = res + "\t"
-                    is "b"  then res = res + chr(8)
-                    is "f"  then res = res + chr(12)
+                    is "\"" then res += "\""
+                    is "\\" then res += "\\"
+                    is "/"  then res += "/"
+                    is "n"  then res += "\n"
+                    is "r"  then res += "\r"
+                    is "t"  then res += "\t"
+                    is "b"  then res += chr(8)
+                    is "f"  then res += chr(12)
                     is "u"  then
                         if pos[0] + 4 < slen
                             let h0 = json_hex_val(char_at(s, pos[0] + 1))
@@ -31,15 +31,15 @@ function _parser_parse_string(s, pos, slen)
                             let h2 = json_hex_val(char_at(s, pos[0] + 3))
                             let h3 = json_hex_val(char_at(s, pos[0] + 4))
                             let code = h0 * 4096 + h1 * 256 + h2 * 16 + h3
-                            res = res + chr(code)
+                            res += chr(code)
                             pos[0] += 4
                         end
                     else
-                        res = res + esc
+                        res += esc
                 end
             end
         else
-            res = res + ch
+            res += ch
         end
         pos[0] += 1
     end
