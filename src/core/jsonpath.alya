@@ -1,7 +1,5 @@
-# JSONPath and RFC 6901 JSON Pointer Evaluator
-# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
-
-import "./utils.alya"
+## JSONPath and RFC 6901 JSON Pointer Evaluator.
+## Part of the Alya Language package ecosystem (https://github.com/alya-lang)
 
 function _jsonpath_is_int(token)
     let tlen = len(token)
@@ -74,19 +72,15 @@ function _json_pointer_unescape(token)
     let res = ""
     let i = 0
     while i < tlen
-        if char_at(token, i) == "~" and i + 1 < tlen
+        let ch = char_at(token, i)
+        if ch == "~" and i + 1 < tlen
             let next_ch = char_at(token, i + 1)
             when next_ch
-                is "1" then
-                    res += "/"
-                    i += 2
-                is "0" then
-                    res += "~"
-                    i += 2
-                else
-                    res += "~"
-                    i += 1
+                is "0" then res += "~"
+                is "1" then res += "/"
+                else res += "~" + next_ch
             end
+            i += 2
         else
             res += char_at(token, i)
             i += 1
@@ -95,6 +89,7 @@ function _json_pointer_unescape(token)
     return res
 end
 
+## Resolves a value using RFC 6901 JSON Pointer syntax (e.g. "/users/0/name").
 pub function json_pointer_get(data, pointer)
     if data is null or len(pointer) == 0
         return data
@@ -168,6 +163,7 @@ function _json_eval_tokens(data, tokens, start_idx)
     return curr
 end
 
+## Evaluates a dot-bracket JSONPath query against a JSON structure.
 pub function json_path_query(data, path)
     if data is null or len(path) == 0
         return data
@@ -179,10 +175,12 @@ pub function json_path_query(data, path)
     return _json_eval_tokens(data, tokens, 0)
 end
 
+## Alias for json_path_query.
 pub function json_path_get(data, path)
     return json_path_query(data, path)
 end
 
+## Checks if a JSONPath expression resolves to a non-null value.
 pub function json_path_exists(data, path)
     let val = json_path_query(data, path)
     if val is not null

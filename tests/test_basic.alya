@@ -74,6 +74,17 @@ function main()
     runner_assert_eq(r, json::json_get_number(raw_json, "code"), 200, "fast get number")
     runner_assert_eq(r, json::json_get_bool(raw_json, "verified"), 1, "fast get bool")
 
+    # 9. JsonErrorCode enum values
+    runner_assert_eq(r, json::JsonErrorCode.None, 0, "JsonErrorCode.None is 0")
+    runner_assert_eq(r, json::JsonErrorCode.UnexpectedToken, 1, "JsonErrorCode.UnexpectedToken is 1")
+    runner_assert_eq(r, json::JsonErrorCode.ValidationFailed, 7, "JsonErrorCode.ValidationFailed is 7")
+
+    # 10. escape / unescape helpers
+    let esc_str = json::escape("hello \"world\"\n")
+    runner_assert_str_eq(r, esc_str, "hello \\\"world\\\"\\n", "escape string")
+    let unesc_str = json::unescape(esc_str)
+    runner_assert_str_eq(r, unesc_str, "hello \"world\"\n", "unescape string")
+
     let failed = runner_summary(r)
     if failed > 0
         exit(1)

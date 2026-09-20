@@ -1,19 +1,22 @@
-# Fluent JSON Builder
-# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+## Fluent JSON Builder.
+## Part of the Alya Language package ecosystem (https://github.com/alya-lang)
 
 import "../types.alya"
 import "./serializer.alya"
 
+## Creates a new JsonBuilder configured for building a JSON Object.
 pub function json_builder_object()
     return make_json_builder(0)
 end
 
+## Creates a new JsonBuilder configured for building a JSON Array.
 pub function json_builder_array()
     return make_json_builder(1)
 end
 
 # --- Primary Serialization Functions ---
 
+## Serializes the builder content into a compact JSON string.
 pub function to_json(builder)
     if builder.jb_is_array == 1
         let count = len(builder.jb_json_parts)
@@ -52,6 +55,7 @@ pub function to_json(builder)
     end
 end
 
+## Serializes the builder content into an indented, formatted JSON string.
 pub function to_pretty(builder, indent = 2)
     let s = to_json(builder)
     return json_pretty(s, indent)

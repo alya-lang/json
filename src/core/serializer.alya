@@ -224,36 +224,37 @@ pub function json_pretty(s, indent_spaces = 2)
                 if in_string
                     res += ch
                 else
-                    if ch == "{" or ch == "["
-                        res += ch + "\n"
-                        indent_level += 1
-                        k = 0
-                        while k < indent_level
-                            res += pad
-                            k += 1
-                        end
-                    elif ch == "}" or ch == "]"
-                        res += "\n"
-                        indent_level -= 1
-                        k = 0
-                        while k < indent_level
-                            res += pad
-                            k += 1
-                        end
-                        res += ch
-                    elif ch == ","
-                        res += ",\n"
-                        k = 0
-                        while k < indent_level
-                            res += pad
-                            k += 1
-                        end
-                    elif ch == ":"
-                        res += ": "
-                    else
-                        if ch != " " and ch != "\t" and ch != "\r" and ch != "\n"
+                    when ch
+                        is "{", "[" then
+                            res += ch + "\n"
+                            indent_level += 1
+                            k = 0
+                            while k < indent_level
+                                res += pad
+                                k += 1
+                            end
+                        is "}", "]" then
+                            res += "\n"
+                            indent_level -= 1
+                            k = 0
+                            while k < indent_level
+                                res += pad
+                                k += 1
+                            end
                             res += ch
-                        end
+                        is "," then
+                            res += ",\n"
+                            k = 0
+                            while k < indent_level
+                                res += pad
+                                k += 1
+                            end
+                        is ":" then
+                            res += ": "
+                        else
+                            if ch != " " and ch != "\t" and ch != "\r" and ch != "\n"
+                                res += ch
+                            end
                     end
                 end
             end

@@ -1,5 +1,5 @@
-# RFC 8259 Recursive-Descent JSON Parser
-# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+## RFC 8259 Recursive-Descent JSON Parser.
+## Part of the Alya Language package ecosystem (https://github.com/alya-lang)
 
 import "./utils.alya"
 
@@ -16,14 +16,14 @@ function _parser_parse_string(s, pos, slen)
             if pos[0] < slen
                 let esc = char_at(s, pos[0])
                 when esc
-                    is "\"" then res += "\""
-                    is "\\" then res += "\\"
-                    is "/"  then res += "/"
-                    is "n"  then res += "\n"
-                    is "r"  then res += "\r"
-                    is "t"  then res += "\t"
-                    is "b"  then res += chr(8)
-                    is "f"  then res += chr(12)
+                    is "\"" then res = res + "\""
+                    is "\\" then res = res + "\\"
+                    is "/"  then res = res + "/"
+                    is "n"  then res = res + "\n"
+                    is "r"  then res = res + "\r"
+                    is "t"  then res = res + "\t"
+                    is "b"  then res = res + chr(8)
+                    is "f"  then res = res + chr(12)
                     is "u"  then
                         if pos[0] + 4 < slen
                             let h0 = json_hex_val(char_at(s, pos[0] + 1))
@@ -31,15 +31,15 @@ function _parser_parse_string(s, pos, slen)
                             let h2 = json_hex_val(char_at(s, pos[0] + 3))
                             let h3 = json_hex_val(char_at(s, pos[0] + 4))
                             let code = h0 * 4096 + h1 * 256 + h2 * 16 + h3
-                            res += chr(code)
+                            res = res + chr(code)
                             pos[0] += 4
                         end
                     else
-                        res += esc
+                        res = res + esc
                 end
             end
         else
-            res += ch
+            res = res + ch
         end
         pos[0] += 1
     end
@@ -57,17 +57,20 @@ function _parser_parse_number(s, pos, slen)
         let c = ord(ch)
         if c >= 48 and c <= 57
             pos[0] += 1
-        elif ch == "."
-            is_flt = 1
-            pos[0] += 1
-        elif ch == "e" or ch == "E"
-            is_flt = 1
-            pos[0] += 1
-            if pos[0] < slen and (char_at(s, pos[0]) == "+" or char_at(s, pos[0]) == "-")
-                pos[0] += 1
-            end
         else
-            break
+            when ch
+                is "." then
+                    is_flt = 1
+                    pos[0] += 1
+                is "e", "E" then
+                    is_flt = 1
+                    pos[0] += 1
+                    if pos[0] < slen and (char_at(s, pos[0]) == "+" or char_at(s, pos[0]) == "-")
+                        pos[0] += 1
+                    end
+                else
+                    break
+            end
         end
     end
     if pos[0] == start
@@ -187,6 +190,7 @@ function _parser_parse_val(s, pos, slen)
     end
 end
 
+## Parses a JSON formatted string into Alya native types (Maps, Arrays, strings, numbers, booleans, null).
 pub function json_parse(text)
     let s = str_from_ptr(text)
     let slen = len(s)
@@ -197,14 +201,17 @@ pub function json_parse(text)
     return _parser_parse_val(s, pos, slen)
 end
 
+## Parses a JSON formatted string into a Map object.
 pub function json_parse_object(text)
     return json_parse(text)
 end
 
+## Parses a JSON formatted string into an Array list.
 pub function json_parse_array(text)
     return json_parse(text)
 end
 
+## Validates whether a string is well-formed JSON according to RFC 8259.
 pub function json_is_valid(text)
     let s = str_from_ptr(text)
     let slen = len(s)
@@ -221,7 +228,7 @@ pub function json_is_valid(text)
     if ch != "{" and ch != "[" and ch != "\"" and ch != "t" and ch != "f" and ch != "n" and ch != "-" and ch != "+" and (c < 48 or c > 57)
         return 0
     end
-    let res = _parser_parse_val(s, pos, slen)
+    let _res = _parser_parse_val(s, pos, slen)
     json_skip_ws(s, pos, slen)
     if pos[0] == slen
         return 1
@@ -229,6 +236,7 @@ pub function json_is_valid(text)
     return 0
 end
 
+## Extracts a top-level string property value by key from a raw JSON string without full parsing.
 pub function json_get_string(json_str, key)
     let target = "\"" + key + "\""
     let slen = len(json_str)
@@ -279,6 +287,7 @@ pub function json_get_string(json_str, key)
     return ""
 end
 
+## Extracts a top-level numeric property value by key from a raw JSON string without full parsing.
 pub function json_get_number(json_str, key)
     let target = "\"" + key + "\""
     let slen = len(json_str)
@@ -336,6 +345,7 @@ pub function json_get_number(json_str, key)
     return 0
 end
 
+## Extracts a top-level boolean property value by key from a raw JSON string without full parsing.
 pub function json_get_bool(json_str, key)
     let target = "\"" + key + "\""
     let slen = len(json_str)

@@ -1,15 +1,18 @@
-# JSON Utility Functions
-# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+## JSON Utility Functions.
+## Part of the Alya Language package ecosystem (https://github.com/alya-lang)
 
-function json_is_digit(ch)
+## Checks if character is an ASCII decimal digit.
+pub function json_is_digit(ch)
     let c = ord(ch)
     return c >= 48 and c <= 57
 end
 
-function json_is_whitespace(ch)
+## Checks if character is an ASCII whitespace character.
+pub function json_is_whitespace(ch)
     return ch == " " or ch == "\t" or ch == "\n" or ch == "\r"
 end
 
+## Advances the position reference past any leading whitespace characters.
 pub function json_skip_ws(s, pos, slen)
     while pos[0] < slen
         let ch = char_at(s, pos[0])
@@ -21,18 +24,18 @@ pub function json_skip_ws(s, pos, slen)
     end
 end
 
+## Converts a hexadecimal ASCII character into its integer value (0-15).
 pub function json_hex_val(ch)
     let c = ord(ch)
-    if c >= 48 and c <= 57
-        return c - 48
-    elif c >= 65 and c <= 70
-        return c - 55
-    elif c >= 97 and c <= 102
-        return c - 87
+    when c
+        is 48..=57 then return c - 48
+        is 65..=70 then return c - 55
+        is 97..=102 then return c - 87
+        else return 0
     end
-    return 0
 end
 
+## Escapes special control characters in string for JSON wire encoding.
 pub function json_escape_str(s)
     let slen = len(s)
     let res = ""
@@ -57,6 +60,7 @@ pub function json_escape_str(s)
     return res
 end
 
+## Unescapes JSON escape sequences into raw string characters.
 pub function json_unescape_str(s)
     let slen = len(s)
     let res = ""
@@ -115,6 +119,7 @@ pub function json_unescape_str(s)
     return res
 end
 
+## Trims leading and trailing ASCII whitespace from a string.
 pub function json_trim(s)
     let slen = len(s)
     if slen == 0

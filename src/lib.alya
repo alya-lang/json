@@ -1,5 +1,5 @@
-# RFC 8259 JSON parser, recursive serializer, JSONPath, JSON Schema validation, and NDJSON streaming for Alya
-# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+## RFC 8259 JSON parser, recursive serializer, JSONPath, JSON Schema validation, and NDJSON streaming for Alya.
+## Part of the Alya Language package ecosystem (https://github.com/alya-lang)
 
 import "./types.alya"
 import "./core/utils.alya"
@@ -10,64 +10,96 @@ import "./core/schema.alya"
 import "./core/ndjson.alya"
 import "./core/builder.alya"
 
-# Top-level public convenience facades
+# ═══════════════════════════════════════════════════════════════
+# High-Level Idiomatic JSON API
+# ═══════════════════════════════════════════════════════════════
 
+## Parses a JSON formatted string into native Alya types (Map, Array, String, Number, Boolean, null).
 pub function parse(text)
     return json_parse(text)
 end
 
+## Parses a JSON string asserting the root value is an Object (Map).
 pub function parse_object(text)
     return json_parse_object(text)
 end
 
+## Parses a JSON string asserting the root value is an Array list.
 pub function parse_array(text)
     return json_parse_array(text)
 end
 
+## Checks if the given text is valid JSON according to RFC 8259 without allocating the full AST.
 pub function is_valid(text)
     return json_is_valid(text)
 end
 
+## Serializes an Alya value into a compact JSON string.
 pub function stringify(val)
     return json_stringify(val)
 end
 
+## Serializes an Alya value or formats a raw JSON string into pretty-printed, indented JSON.
 pub function pretty(val, indent = 2)
     return json_pretty(val, indent)
 end
 
+## Strips whitespace and minifies a JSON string.
 pub function minify(text)
     return json_minify(text)
 end
 
+## Evaluates a dot-bracket JSONPath query against a JSON structure.
 pub function query(data, path)
     return json_path_query(data, path)
 end
 
+## Resolves a value using RFC 6901 JSON Pointer syntax (e.g. "/users/0/name").
 pub function pointer(data, ptr)
     return json_pointer_get(data, ptr)
 end
 
+## Validates data against a JSON Schema document, returning a ValidationResult.
 pub function validate(data, schema)
     return json_validate(data, schema)
 end
 
+## Validates data against a JSON Schema, returning 1 if valid or 0 if invalid.
 pub function is_valid_schema(data, schema)
     return json_is_valid_schema(data, schema)
 end
 
+## Parses newline-delimited JSON (NDJSON) text into an array of parsed records.
 pub function ndjson_read(text)
     return ndjson_parse(text)
 end
 
+## Serializes an array of records into a newline-delimited JSON (NDJSON) string.
 pub function ndjson_write(records)
     return ndjson_stringify(records)
 end
 
+## Creates a new JsonBuilder configured for building a JSON Object.
 pub function builder_object()
     return json_builder_object()
 end
 
+## Creates a new JsonBuilder configured for building a JSON Array.
 pub function builder_array()
     return json_builder_array()
+end
+
+## Creates a new JsonBuilder with configurable container type (0 for Object, 1 for Array).
+pub function builder(is_array = 0)
+    return make_json_builder(is_array)
+end
+
+## Escapes control characters in a string for JSON wire representation.
+pub function escape(s)
+    return json_escape_str(s)
+end
+
+## Unescapes JSON escape sequences in a string.
+pub function unescape(s)
+    return json_unescape_str(s)
 end
