@@ -11,3 +11,7 @@ repository = "https://github.com/alya-lang/json"
 keywords = ["alya", "alya-lang", "package", "json", "parser", "serializer", "jsonpath", "json-schema", "ndjson"]
 
 [dependencies]
+
+# [lint]
+# disabled_rules = []
+# exclude = []
