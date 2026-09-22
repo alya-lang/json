@@ -3,13 +3,13 @@
 
 ## JSON value type classification.
 pub enum JsonType
-    Null,
-    Bool,
-    Int,
-    Float,
-    String,
-    Array,
-    Object
+    Null = 0,
+    Bool = 1,
+    Int = 2,
+    Float = 3,
+    String = 4,
+    Array = 5,
+    Object = 6
 end
 
 ## Standard JSON error codes.
@@ -25,14 +25,27 @@ pub enum JsonErrorCode
 end
 
 ## Represents a single schema validation failure item.
+##
+## ### Fields
+## - `err_path`: JSON path string where the failure occurred.
+## - `err_message`: Human-readable failure message.
+## - `err_keyword`: Schema keyword string (e.g. `"type"`).
 pub struct ValidationError
-    err_path,
-    err_message,
-    err_keyword
+    err_path: string,
+    err_message: string,
+    err_keyword: string
 end
 
 ## Constructs a new ValidationError instance.
-pub function make_validation_error(path, message, keyword = "")
+##
+## ### Parameters
+## - `path`: JSON path string.
+## - `message`: Failure message string.
+## - `keyword`: Schema keyword. Defaults to `""`.
+##
+## ### Returns
+## The new `ValidationError` instance.
+pub function make_validation_error(path: string, message: string, keyword: string = "") -> ValidationError
     return ValidationError {
         err_path: path,
         err_message: message,
@@ -41,13 +54,24 @@ pub function make_validation_error(path, message, keyword = "")
 end
 
 ## Represents the aggregated result of schema validation.
+##
+## ### Fields
+## - `res_valid`: `1` when valid, `0` otherwise.
+## - `res_errors`: `ValidationError` array.
 pub struct ValidationResult
-    res_valid,
-    res_errors
+    res_valid: int,
+    res_errors: array
 end
 
 ## Constructs a new ValidationResult instance.
-pub function make_validation_result(is_valid, errors = [])
+##
+## ### Parameters
+## - `is_valid`: Validity flag integer.
+## - `errors`: `ValidationError` array. Defaults to `[]`.
+##
+## ### Returns
+## The new `ValidationResult` instance.
+pub function make_validation_result(is_valid: int, errors: array = []) -> ValidationResult
     return ValidationResult {
         res_valid: is_valid,
         res_errors: errors
@@ -55,14 +79,25 @@ pub function make_validation_result(is_valid, errors = [])
 end
 
 ## Represents an incremental JSON document builder.
+##
+## ### Fields
+## - `jb_data`: Accumulated container (map or array).
+## - `jb_is_array`: `1` for arrays, `0` for objects.
+## - `jb_json_parts`: Pre-rendered JSON fragment container.
 pub struct JsonBuilder
     jb_data,
-    jb_is_array,
+    jb_is_array: int,
     jb_json_parts
 end
 
 ## Constructs a new JsonBuilder instance.
-pub function make_json_builder(is_array = 0)
+##
+## ### Parameters
+## - `is_array`: `1` for arrays, `0` for objects. Defaults to `0`.
+##
+## ### Returns
+## The new `JsonBuilder` instance.
+pub function make_json_builder(is_array: int = 0) -> JsonBuilder
     if is_array == 1
         return JsonBuilder {
             jb_data: [],

@@ -1,12 +1,14 @@
-## Newline-Delimited JSON (NDJSON / JSON Lines) Streaming Module.
-## Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+## # json/ndjson
+##
+## Newline-delimited JSON streaming helpers.
+## Part of the Alya Language package ecosystem (https://github.com/alya-lang).
 
 import "./utils.alya"
 import "./parser.alya"
 import "./serializer.alya"
 
 ## Parses newline-delimited JSON text into an array of parsed records.
-pub function ndjson_parse(text)
+pub function ndjson_parse(text: string) -> array
     let s = str_from_ptr(text)
     let raw_lines = s.split("\n")
     let records = []
@@ -23,7 +25,7 @@ pub function ndjson_parse(text)
 end
 
 ## Serializes an array of records into a newline-delimited JSON string.
-pub function ndjson_stringify(records)
+pub function ndjson_stringify(records: array) -> string
     if records is null or len(records) == 0
         return ""
     end
@@ -39,7 +41,7 @@ pub function ndjson_stringify(records)
 end
 
 ## Counts the number of non-empty NDJSON record lines in the given text.
-pub function ndjson_count(text)
+pub function ndjson_count(text: string) -> int
     let s = str_from_ptr(text)
     let raw_lines = s.split("\n")
     let total = 0

@@ -1,5 +1,7 @@
-## RFC 8259 JSON parser, recursive serializer, JSONPath, JSON Schema validation, and NDJSON streaming for Alya.
-## Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+## # json
+##
+## RFC 8259 JSON parser, serializer, JSONPath, Schema validation, and NDJSON streaming.
+## Part of the Alya Language package ecosystem (https://github.com/alya-lang).
 
 import "./types.alya"
 import "./core/utils.alya"
@@ -15,91 +17,91 @@ import "./core/builder.alya"
 # ═══════════════════════════════════════════════════════════════
 
 ## Parses a JSON formatted string into native Alya types (Map, Array, String, Number, Boolean, null).
-pub function parse(text)
+pub function parse(text: string)
     return json_parse(text)
 end
 
 ## Parses a JSON string asserting the root value is an Object (Map).
-pub function parse_object(text)
+pub function parse_object(text: string)
     return json_parse_object(text)
 end
 
 ## Parses a JSON string asserting the root value is an Array list.
-pub function parse_array(text)
+pub function parse_array(text: string)
     return json_parse_array(text)
 end
 
 ## Checks if the given text is valid JSON according to RFC 8259 without allocating the full AST.
-pub function is_valid(text)
+pub function is_valid(text: string) -> int
     return json_is_valid(text)
 end
 
 ## Serializes an Alya value into a compact JSON string.
-pub function stringify(val)
+pub function stringify(val) -> string
     return json_stringify(val)
 end
 
 ## Serializes an Alya value or formats a raw JSON string into pretty-printed, indented JSON.
-pub function pretty(val, indent = 2)
+pub function pretty(val, indent: int = 2) -> string
     return json_pretty(val, indent)
 end
 
 ## Strips whitespace and minifies a JSON string.
-pub function minify(text)
+pub function minify(text: string) -> string
     return json_minify(text)
 end
 
 ## Evaluates a dot-bracket JSONPath query against a JSON structure.
-pub function query(data, path)
+pub function query(data, path: string)
     return json_path_query(data, path)
 end
 
 ## Resolves a value using RFC 6901 JSON Pointer syntax (e.g. "/users/0/name").
-pub function pointer(data, ptr)
+pub function pointer(data, ptr: string)
     return json_pointer_get(data, ptr)
 end
 
 ## Validates data against a JSON Schema document, returning a ValidationResult.
-pub function validate(data, schema)
+pub function validate(data, schema) -> ValidationResult
     return json_validate(data, schema)
 end
 
 ## Validates data against a JSON Schema, returning 1 if valid or 0 if invalid.
-pub function is_valid_schema(data, schema)
+pub function is_valid_schema(data, schema) -> int
     return json_is_valid_schema(data, schema)
 end
 
 ## Parses newline-delimited JSON (NDJSON) text into an array of parsed records.
-pub function ndjson_read(text)
+pub function ndjson_read(text: string) -> array
     return ndjson_parse(text)
 end
 
 ## Serializes an array of records into a newline-delimited JSON (NDJSON) string.
-pub function ndjson_write(records)
+pub function ndjson_write(records: array) -> string
     return ndjson_stringify(records)
 end
 
 ## Creates a new JsonBuilder configured for building a JSON Object.
-pub function builder_object()
+pub function builder_object() -> JsonBuilder
     return json_builder_object()
 end
 
 ## Creates a new JsonBuilder configured for building a JSON Array.
-pub function builder_array()
+pub function builder_array() -> JsonBuilder
     return json_builder_array()
 end
 
 ## Creates a new JsonBuilder with configurable container type (0 for Object, 1 for Array).
-pub function builder(is_array = 0)
+pub function builder(is_array: int = 0) -> JsonBuilder
     return make_json_builder(is_array)
 end
 
 ## Escapes control characters in a string for JSON wire representation.
-pub function escape(s)
+pub function escape(s: string) -> string
     return json_escape_str(s)
 end
 
 ## Unescapes JSON escape sequences in a string.
-pub function unescape(s)
+pub function unescape(s: string) -> string
     return json_unescape_str(s)
 end

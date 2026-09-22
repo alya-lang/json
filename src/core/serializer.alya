@@ -1,25 +1,33 @@
-# JSON Serializer and Formatter
-# Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+## # json/serializer
+##
+## JSON value serializer and formatter.
+## Part of the Alya Language package ecosystem (https://github.com/alya-lang).
 
 import "./utils.alya"
 
-pub function json_escape(s)
+## Escapes control characters in a string for JSON wire representation.
+pub function json_escape(s: string) -> string
     return json_escape_str(s)
 end
 
-pub function json_string(s)
-    return "\"" + json_escape(s) + "\""
+## Wraps a string in double quotes with JSON escaping.
+pub function json_string(s: string) -> string
+    let esc = json_escape(s)
+    return "\"{esc}\""
 end
 
-pub function json_number(n)
+## Formats a numeric value without quotes.
+pub function json_number(n) -> string
     return str(n)
 end
 
-pub function json_int(n)
+## Formats an integer value without quotes.
+pub function json_int(n: int) -> string
     return str(n)
 end
 
-pub function json_float(n)
+## Formats a float value with up to 6 significant fraction digits.
+pub function json_float(n) -> string
     let flt = float(n)
     let iv = int(flt)
     let fv = flt - float(iv)
@@ -28,30 +36,36 @@ pub function json_float(n)
     end
     let frac = int(fv * 1000000.0 + 0.5)
     if frac == 0
-        return str(iv) + ".0"
+        return "{iv}.0"
     end
     while frac % 10 == 0
         frac /= 10
     end
-    return str(iv) + "." + str(frac)
+    return "{iv}.{frac}"
 end
 
-pub function json_null()
+## Returns the JSON null literal.
+pub function json_null() -> string
     return "null"
 end
 
-pub function json_bool(b)
+## Formats a boolean flag as true or false.
+pub function json_bool(b) -> string
     return when b
         is 1 => "true"
         else => "false"
     end
 end
 
-pub function json_kv(key, val)
-    return "\"" + json_escape(key) + "\": " + str(val)
+## Formats one quoted key and raw value pair.
+pub function json_kv(key: string, val) -> string
+    let ek = json_escape(key)
+    let val_str = str(val)
+    return "\"{ek}\": {val_str}"
 end
 
-pub function json_array(items)
+## Formats an array with raw element values.
+pub function json_array(items: array) -> string
     let count = len(items)
     if count == 0
         return "[]"
@@ -61,13 +75,15 @@ pub function json_array(items)
         if i > 0
             res += ", "
         end
-        res += str(item)
+        let item_str = str(item)
+        res += item_str
     end
     res += "]"
     return res
 end
 
-pub function json_array_of_strings(items)
+## Formats a quoted string array.
+pub function json_array_of_strings(items: array) -> string
     let count = len(items)
     if count == 0
         return "[]"
@@ -83,7 +99,8 @@ pub function json_array_of_strings(items)
     return res
 end
 
-pub function json_array_of_numbers(items)
+## Formats a numeric array.
+pub function json_array_of_numbers(items: array) -> string
     let count = len(items)
     if count == 0
         return "[]"
@@ -93,13 +110,15 @@ pub function json_array_of_numbers(items)
         if i > 0
             res += ", "
         end
-        res += str(item)
+        let num_str = str(item)
+        res += num_str
     end
     res += "]"
     return res
 end
 
-pub function json_array_of_bools(items)
+## Formats a boolean array.
+pub function json_array_of_bools(items: array) -> string
     let count = len(items)
     if count == 0
         return "[]"
@@ -115,7 +134,8 @@ pub function json_array_of_bools(items)
     return res
 end
 
-pub function json_object(m)
+## Formats a map into a JSON object with raw values.
+pub function json_object(m) -> string
     let k = keys(m)
     let count = len(k)
     if count == 0
@@ -127,18 +147,22 @@ pub function json_object(m)
         if i > 0
             res += ", "
         end
-        res += "\"" + json_escape(key) + "\": " + str(val)
+        let ek = json_escape(key)
+        let val_str = str(val)
+        res += "\"{ek}\": {val_str}"
         i += 1
     end
     res += "}"
     return res
 end
 
-pub function json_map(m)
+## Alias for json_object.
+pub function json_map(m) -> string
     return json_object(m)
 end
 
-pub function json_string_map(m)
+## Formats a map with all values quoted as strings.
+pub function json_string_map(m) -> string
     let k = keys(m)
     let count = len(k)
     if count == 0
@@ -150,14 +174,17 @@ pub function json_string_map(m)
         if i > 0
             res += ", "
         end
-        res += "\"" + json_escape(key) + "\": \"" + json_escape(val) + "\""
+        let ek = json_escape(key)
+        let ev = json_escape(val)
+        res += "\"{ek}\": \"{ev}\""
         i += 1
     end
     res += "}"
     return res
 end
 
-pub function json_minify(s)
+## Strips insignificant whitespace from a JSON string.
+pub function json_minify(s: string) -> string
     let slen = len(s)
     let res = ""
     let in_string = 0
@@ -190,7 +217,8 @@ pub function json_minify(s)
     return res
 end
 
-pub function json_pretty(s, indent_spaces = 2)
+## Pretty-prints a JSON string with indentation.
+pub function json_pretty(s: string, indent_spaces: int = 2) -> string
     let slen = len(s)
     if slen == 0
         return ""
@@ -264,6 +292,7 @@ pub function json_pretty(s, indent_spaces = 2)
     return res
 end
 
-pub function json_stringify(val)
+## Converts an arbitrary value to its string form.
+pub function json_stringify(val) -> string
     return str(val)
 end

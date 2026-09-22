@@ -1,5 +1,7 @@
-## JSONPath and RFC 6901 JSON Pointer Evaluator.
-## Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+## # json/jsonpath
+##
+## JSONPath and RFC 6901 JSON Pointer evaluator.
+## Part of the Alya Language package ecosystem (https://github.com/alya-lang).
 
 function _jsonpath_is_int(token)
     let tlen = len(token)
@@ -90,7 +92,7 @@ function _json_pointer_unescape(token)
 end
 
 ## Resolves a value using RFC 6901 JSON Pointer syntax (e.g. "/users/0/name").
-pub function json_pointer_get(data, pointer)
+pub function json_pointer_get(data, pointer: string)
     if data is null or len(pointer) == 0
         return data
     end
@@ -164,7 +166,7 @@ function _json_eval_tokens(data, tokens, start_idx)
 end
 
 ## Evaluates a dot-bracket JSONPath query against a JSON structure.
-pub function json_path_query(data, path)
+pub function json_path_query(data, path: string)
     if data is null or len(path) == 0
         return data
     end
@@ -176,12 +178,12 @@ pub function json_path_query(data, path)
 end
 
 ## Alias for json_path_query.
-pub function json_path_get(data, path)
+pub function json_path_get(data, path: string)
     return json_path_query(data, path)
 end
 
 ## Checks if a JSONPath expression resolves to a non-null value.
-pub function json_path_exists(data, path)
+pub function json_path_exists(data, path: string) -> int
     let val = json_path_query(data, path)
     if val is not null
         return 1

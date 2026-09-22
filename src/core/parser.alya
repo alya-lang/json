@@ -191,7 +191,7 @@ function _parser_parse_val(s, pos, slen)
 end
 
 ## Parses a JSON formatted string into Alya native types (Maps, Arrays, strings, numbers, booleans, null).
-pub function json_parse(text)
+pub function json_parse(text: string)
     let s = str_from_ptr(text)
     let slen = len(s)
     if slen == 0
@@ -202,17 +202,17 @@ pub function json_parse(text)
 end
 
 ## Parses a JSON formatted string into a Map object.
-pub function json_parse_object(text)
+pub function json_parse_object(text: string)
     return json_parse(text)
 end
 
 ## Parses a JSON formatted string into an Array list.
-pub function json_parse_array(text)
+pub function json_parse_array(text: string)
     return json_parse(text)
 end
 
 ## Validates whether a string is well-formed JSON according to RFC 8259.
-pub function json_is_valid(text)
+pub function json_is_valid(text: string) -> int
     let s = str_from_ptr(text)
     let slen = len(s)
     if slen == 0
@@ -237,8 +237,8 @@ pub function json_is_valid(text)
 end
 
 ## Extracts a top-level string property value by key from a raw JSON string without full parsing.
-pub function json_get_string(json_str, key)
-    let target = "\"" + key + "\""
+pub function json_get_string(json_str: string, key: string) -> string
+    let target = "\"{key}\""
     let slen = len(json_str)
     let tlen = len(target)
     let i = 0
@@ -288,8 +288,8 @@ pub function json_get_string(json_str, key)
 end
 
 ## Extracts a top-level numeric property value by key from a raw JSON string without full parsing.
-pub function json_get_number(json_str, key)
-    let target = "\"" + key + "\""
+pub function json_get_number(json_str: string, key: string)
+    let target = "\"{key}\""
     let slen = len(json_str)
     let tlen = len(target)
     let i = 0
@@ -346,8 +346,8 @@ pub function json_get_number(json_str, key)
 end
 
 ## Extracts a top-level boolean property value by key from a raw JSON string without full parsing.
-pub function json_get_bool(json_str, key)
-    let target = "\"" + key + "\""
+pub function json_get_bool(json_str: string, key: string) -> int
+    let target = "\"{key}\""
     let slen = len(json_str)
     let tlen = len(target)
     let i = 0

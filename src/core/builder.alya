@@ -1,23 +1,25 @@
-## Fluent JSON Builder.
-## Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+## # json/builder
+##
+## Fluent incremental JSON document builder.
+## Part of the Alya Language package ecosystem (https://github.com/alya-lang).
 
 import "../types.alya"
 import "./serializer.alya"
 
 ## Creates a new JsonBuilder configured for building a JSON Object.
-pub function json_builder_object()
+pub function json_builder_object() -> JsonBuilder
     return make_json_builder(0)
 end
 
 ## Creates a new JsonBuilder configured for building a JSON Array.
-pub function json_builder_array()
+pub function json_builder_array() -> JsonBuilder
     return make_json_builder(1)
 end
 
 # --- Primary Serialization Functions ---
 
 ## Serializes the builder content into a compact JSON string.
-pub function to_json(builder)
+pub function to_json(builder: JsonBuilder) -> string
     if builder.jb_is_array == 1
         let count = len(builder.jb_json_parts)
         if count == 0
@@ -47,7 +49,9 @@ pub function to_json(builder)
                 res += ", "
             end
             let key = k[i]
-            res += "\"" + json_escape(key) + "\": " + builder.jb_json_parts[key]
+            let ek = json_escape(key)
+            let part = builder.jb_json_parts[key]
+            res += "\"{ek}\": {part}"
             i += 1
         end
         res += "}"
@@ -56,99 +60,99 @@ pub function to_json(builder)
 end
 
 ## Serializes the builder content into an indented, formatted JSON string.
-pub function to_pretty(builder, indent = 2)
+pub function to_pretty(builder: JsonBuilder, indent: int = 2) -> string
     let s = to_json(builder)
     return json_pretty(s, indent)
 end
 
 # --- Struct Methods on JsonBuilder ---
 
-pub function JsonBuilder.add(self, key, val)
+pub function JsonBuilder.add(self: JsonBuilder, key: string, val) -> JsonBuilder
     self.jb_data[key] = val
     self.jb_json_parts[key] = str(val)
     return self
 end
 
-pub function JsonBuilder.set(self, key, val)
+pub function JsonBuilder.set(self: JsonBuilder, key: string, val) -> JsonBuilder
     self.jb_data[key] = val
     self.jb_json_parts[key] = str(val)
     return self
 end
 
-pub function JsonBuilder.set_string(self, key, val)
+pub function JsonBuilder.set_string(self: JsonBuilder, key: string, val: string) -> JsonBuilder
     self.jb_data[key] = val
     self.jb_json_parts[key] = json_string(val)
     return self
 end
 
-pub function JsonBuilder.set_int(self, key, val)
+pub function JsonBuilder.set_int(self: JsonBuilder, key: string, val: int) -> JsonBuilder
     self.jb_data[key] = val
     self.jb_json_parts[key] = json_int(val)
     return self
 end
 
-pub function JsonBuilder.set_float(self, key, val)
+pub function JsonBuilder.set_float(self: JsonBuilder, key: string, val: float) -> JsonBuilder
     self.jb_data[key] = val
     self.jb_json_parts[key] = json_float(val)
     return self
 end
 
-pub function JsonBuilder.set_bool(self, key, val)
+pub function JsonBuilder.set_bool(self: JsonBuilder, key: string, val: int) -> JsonBuilder
     self.jb_data[key] = val
     self.jb_json_parts[key] = json_bool(val)
     return self
 end
 
-pub function JsonBuilder.set_null(self, key)
+pub function JsonBuilder.set_null(self: JsonBuilder, key: string) -> JsonBuilder
     self.jb_data[key] = null
     self.jb_json_parts[key] = json_null()
     return self
 end
 
-pub function JsonBuilder.push(self, val)
+pub function JsonBuilder.push(self: JsonBuilder, val) -> JsonBuilder
     self.jb_data.push(val)
     self.jb_json_parts.push(str(val))
     return self
 end
 
-pub function JsonBuilder.push_string(self, val)
+pub function JsonBuilder.push_string(self: JsonBuilder, val: string) -> JsonBuilder
     self.jb_data.push(val)
     self.jb_json_parts.push(json_string(val))
     return self
 end
 
-pub function JsonBuilder.push_int(self, val)
+pub function JsonBuilder.push_int(self: JsonBuilder, val: int) -> JsonBuilder
     self.jb_data.push(val)
     self.jb_json_parts.push(json_int(val))
     return self
 end
 
-pub function JsonBuilder.push_float(self, val)
+pub function JsonBuilder.push_float(self: JsonBuilder, val: float) -> JsonBuilder
     self.jb_data.push(val)
     self.jb_json_parts.push(json_float(val))
     return self
 end
 
-pub function JsonBuilder.push_bool(self, val)
+pub function JsonBuilder.push_bool(self: JsonBuilder, val: int) -> JsonBuilder
     self.jb_data.push(val)
     self.jb_json_parts.push(json_bool(val))
     return self
 end
 
-pub function JsonBuilder.push_null(self)
+pub function JsonBuilder.push_null(self: JsonBuilder) -> JsonBuilder
     self.jb_data.push(null)
     self.jb_json_parts.push(json_null())
     return self
 end
 
-pub function JsonBuilder.build(self)
+pub function JsonBuilder.build(self: JsonBuilder)
     return self.jb_data
 end
 
-pub function JsonBuilder.to_json(self)
+pub function JsonBuilder.to_json(self: JsonBuilder) -> string
     return to_json(self)
 end
 
-pub function JsonBuilder.to_pretty(self, indent = 2)
+pub function JsonBuilder.to_pretty(self: JsonBuilder, indent: int = 2) -> string
     return to_pretty(self, indent)
 end
