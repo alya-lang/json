@@ -15,3 +15,12 @@ keywords = ["alya", "alya-lang", "package", "json", "parser", "serializer", "jso
 # [lint]
 # disabled_rules = []
 # exclude = []
+
+# [fmt]
+# exclude = []
+
+# [test]
+# exclude = []
+
+# [bench]
+# exclude = []
