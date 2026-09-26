@@ -45,7 +45,8 @@ json/
 │   ├── test_jsonpath.alya  # JSONPath & JSON Pointer test suite (13 tests)
 │   ├── test_schema.alya    # JSON Schema validation test suite (11 tests)
 │   ├── test_ndjson.alya    # Streaming NDJSON test suite (10 tests)
-│   └── test_builder.alya   # Fluent builder test suite (14 tests)
+│   ├── test_builder.alya   # Fluent builder test suite (14 tests)
+│   └── test_unicode.alya   # Unicode escape & surrogate-pair regression suite (8 tests)
 └── benches/
     └── bench_basic.alya    # Performance micro-benchmarks
 ```

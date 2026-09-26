@@ -1,0 +1,45 @@
+## Unicode regression tests for JSON string escapes
+## Part of the Alya Language package ecosystem (https://github.com/alya-lang)
+##
+## \u escapes above Latin-1 must decode to UTF-8 (with surrogate-pair
+## combining). Previously any codepoint above 255 crashed the host
+## process inside chr().
+
+import "std/test"
+import "../src/lib.alya" as json
+
+function main()
+    test_suite("JSON Unicode Regression Suite")
+    let r = runner_new()
+
+    let latin = json::parse("\"\\u0041\"")
+    runner_assert_str_eq(r, latin, "A", "ASCII escape still decodes")
+
+    let e9 = json::parse("\"\\u00E9\"")
+    runner_assert_str_eq(r, e9, "é", "Latin-1 supplement escape")
+
+    let euro = json::parse("\"\\u20AC\"")
+    runner_assert_str_eq(r, euro, "€", "BMP escape above Latin-1")
+
+    let han = json::parse("\"\\u4E2D\"")
+    runner_assert_str_eq(r, han, "中", "CJK escape")
+
+    let pair = json::parse("\"\\uD83D\\uDE00\"")
+    runner_assert_str_eq(r, pair, "😀", "surrogate pair combines to astral char")
+
+    let lone = json::parse("\"\\uD800\"")
+    runner_assert_str_eq(r, lone, "�", "lone surrogate becomes replacement char")
+
+    let un = json::unescape("\\u20AC")
+    runner_assert_str_eq(r, un, "€", "unescape helper decodes BMP escape")
+
+    let unpair = json::unescape("\\uD83D\\uDE00")
+    runner_assert_str_eq(r, unpair, "😀", "unescape helper combines surrogate pair")
+
+    let failed = runner_summary(r)
+    if failed > 0
+        exit(1)
+    end
+end
+
+main()

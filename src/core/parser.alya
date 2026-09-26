@@ -30,8 +30,23 @@ function _parser_parse_string(s, pos, slen)
                             let h1 = json_hex_val(char_at(s, pos[0] + 2))
                             let h2 = json_hex_val(char_at(s, pos[0] + 3))
                             let h3 = json_hex_val(char_at(s, pos[0] + 4))
-                            let code = h0 * 4096 + h1 * 256 + h2 * 16 + h3
-                            res += chr(code)
+                            let pcode = h0 * 4096 + h1 * 256 + h2 * 16 + h3
+                            if pcode >= 55296 and pcode <= 56319 and pos[0] + 10 < slen and char_at(s, pos[0] + 5) == "\\" and char_at(s, pos[0] + 6) == "u"
+                                let l0 = json_hex_val(char_at(s, pos[0] + 7))
+                                let l1 = json_hex_val(char_at(s, pos[0] + 8))
+                                let l2 = json_hex_val(char_at(s, pos[0] + 9))
+                                let l3 = json_hex_val(char_at(s, pos[0] + 10))
+                                let plo = l0 * 4096 + l1 * 256 + l2 * 16 + l3
+                                if plo >= 56320 and plo <= 57343
+                                    pcode = 65536 + (pcode - 55296) * 1024 + (plo - 56320)
+                                    pos[0] += 6
+                                else
+                                    pcode = 65533
+                                end
+                            elif (pcode >= 55296 and pcode <= 56319) or (pcode >= 56320 and pcode <= 57343)
+                                pcode = 65533
+                            end
+                            res += json_chr_utf8(pcode)
                             pos[0] += 4
                         end
                     else

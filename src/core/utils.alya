@@ -60,6 +60,30 @@ pub function json_escape_str(s: string) -> string
     return res
 end
 
+## Encodes a Unicode codepoint as UTF-8.
+##
+## chr() only covers 0..255 and crashes the host process above that;
+## this helper keeps \u decoding total without touching the compiler.
+## Out-of-range codes yield "".
+pub function json_chr_utf8(code: int) -> string
+    if code < 0
+        return ""
+    end
+    if code < 128
+        return chr(code)
+    end
+    if code < 2048
+        return chr(192 + code / 64) + chr(128 + code % 64)
+    end
+    if code < 65536
+        return chr(224 + code / 4096) + chr(128 + (code / 64) % 64) + chr(128 + code % 64)
+    end
+    if code < 1114112
+        return chr(240 + code / 262144) + chr(128 + (code / 4096) % 64) + chr(128 + (code / 64) % 64) + chr(128 + code % 64)
+    end
+    return ""
+end
+
 ## Unescapes JSON escape sequences into raw string characters.
 pub function json_unescape_str(s: string) -> string
     let slen = len(s)
@@ -100,8 +124,23 @@ pub function json_unescape_str(s: string) -> string
                         let h1 = json_hex_val(char_at(s, i + 3))
                         let h2 = json_hex_val(char_at(s, i + 4))
                         let h3 = json_hex_val(char_at(s, i + 5))
-                        let code = h0 * 4096 + h1 * 256 + h2 * 16 + h3
-                        res += chr(code)
+                        let ucode = h0 * 4096 + h1 * 256 + h2 * 16 + h3
+                        if ucode >= 55296 and ucode <= 56319 and i + 11 < slen and char_at(s, i + 6) == "\\" and char_at(s, i + 7) == "u"
+                            let l0 = json_hex_val(char_at(s, i + 8))
+                            let l1 = json_hex_val(char_at(s, i + 9))
+                            let l2 = json_hex_val(char_at(s, i + 10))
+                            let l3 = json_hex_val(char_at(s, i + 11))
+                            let lo = l0 * 4096 + l1 * 256 + l2 * 16 + l3
+                            if lo >= 56320 and lo <= 57343
+                                ucode = 65536 + (ucode - 55296) * 1024 + (lo - 56320)
+                                i += 6
+                            else
+                                ucode = 65533
+                            end
+                        elif (ucode >= 55296 and ucode <= 56319) or (ucode >= 56320 and ucode <= 57343)
+                            ucode = 65533
+                        end
+                        res += json_chr_utf8(ucode)
                         i += 6
                     else
                         res += "\\u"
