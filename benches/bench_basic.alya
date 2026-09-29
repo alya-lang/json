@@ -50,6 +50,20 @@ function main()
     end
     bench_stop(runner, "JSON Minifier (strip whitespace)")
 
+    @cfg(feature = "jsonpath")
+    bench_jsonpath(runner)
+    @cfg(feature = "schema")
+    bench_schema(runner)
+    @cfg(feature = "ndjson")
+    bench_ndjson(runner)
+
+    bench_summary(runner)
+end
+
+main()
+
+@cfg(feature = "jsonpath")
+function bench_jsonpath(runner)
     # 5. JSONPath Query Benchmark
     let path_doc = json::parse("{\"store\": {\"book\": {\"price\": 19}}}")
     bench_start(runner, 20000)
@@ -60,6 +74,10 @@ function main()
     end
     bench_stop(runner, "JSONPath Query (store.book.price)")
 
+end
+
+@cfg(feature = "schema")
+function bench_schema(runner)
     # 6. JSON Schema Validation Benchmark
     let schema = json::parse("{\"type\":\"object\",\"required\":[\"id\"],\"properties\":{\"id\":{\"type\":\"integer\"}}}")
     let target = json::parse("{\"id\": 123}")
@@ -71,6 +89,10 @@ function main()
     end
     bench_stop(runner, "JSON Schema Validation")
 
+end
+
+@cfg(feature = "ndjson")
+function bench_ndjson(runner)
     # 7. NDJSON Parsing Benchmark
     let nd_data = "{\"id\":1}\n{\"id\":2}\n{\"id\":3}"
     bench_start(runner, 10000)
@@ -80,8 +102,4 @@ function main()
         nd += 1
     end
     bench_stop(runner, "NDJSON Streaming Parser")
-
-    bench_summary(runner)
 end
-
-main()

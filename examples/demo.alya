@@ -18,11 +18,16 @@ function main()
     say "Parsed Title: " + str_from_ptr(doc["title"])
 
     # 2. JSONPath & JSON Pointer Query
+    @cfg(feature = "jsonpath")
     say "\n[2] Querying with JSONPath & JSON Pointer:"
+    @cfg(feature = "jsonpath")
     let author_name = json::query(doc, "author.name")
+    @cfg(feature = "jsonpath")
     say "JSONPath 'author.name': " + str_from_ptr(author_name)
 
+    @cfg(feature = "jsonpath")
     let tag0 = json::pointer(doc, "/tags/0")
+    @cfg(feature = "jsonpath")
     say "JSON Pointer '/tags/0': " + str_from_ptr(tag0)
 
     # 3. Serialization, Minify & Pretty Printing
@@ -34,27 +39,45 @@ function main()
     say "Minified back: " + minified_str
 
     # 4. JSON Schema Validation
+    @cfg(feature = "schema")
     say "\n[4] JSON Schema Validation:"
+    @cfg(feature = "schema")
     let schema_json = "{\"type\":\"object\",\"required\":[\"id\",\"title\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"title\":{\"type\":\"string\",\"minLength\":5}}}"
+    @cfg(feature = "schema")
     let schema = json::parse(schema_json)
+    @cfg(feature = "schema")
     let val_res = json::validate(doc, schema)
+    @cfg(feature = "schema")
     say "Validation valid: " + str(val_res.res_valid)
+    @cfg(feature = "schema")
     say "Validation errors count: " + str(len(val_res.res_errors))
 
     # 5. NDJSON Streaming
+    @cfg(feature = "ndjson")
     say "\n[5] Streaming NDJSON:"
+    @cfg(feature = "ndjson")
     let nd_stream = "{\"metric\": \"cpu\", \"val\": 45}\n{\"metric\": \"mem\", \"val\": 68}"
+    @cfg(feature = "ndjson")
     let count = json::ndjson_count(nd_stream)
+    @cfg(feature = "ndjson")
     say "NDJSON record count: " + str(count)
+    @cfg(feature = "ndjson")
     let records = json::ndjson_read(nd_stream)
+    @cfg(feature = "ndjson")
     say "First record metric: " + str_from_ptr(records[0]["metric"])
 
     # 6. Fluent Builder
+    @cfg(feature = "builder")
     say "\n[6] Fluent JSON Builder:"
+    @cfg(feature = "builder")
     let b = json::builder_object()
+    @cfg(feature = "builder")
     b.set_int("release", 2026)
+    @cfg(feature = "builder")
     b.set_bool("active", 1)
+    @cfg(feature = "builder")
     let b_str = b.to_json()
+    @cfg(feature = "builder")
     say "Built JSON: " + b_str
 
     say "\nAll features demonstrated successfully!"

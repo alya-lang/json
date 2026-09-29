@@ -69,6 +69,27 @@ alya add json --git https://github.com/alya-lang/json --branch main
 alya install
 ```
 
+### Package Features
+
+| Feature | Default | Description |
+|:---|:---:|:---|
+| `jsonpath` | ✅ | JSONPath queries and RFC 6901 pointers (`query`, `pointer`). |
+| `schema` | ✅ | JSON Schema validation (`validate`, `is_valid_schema`). |
+| `ndjson` | ✅ | Newline-delimited JSON streaming (`ndjson_read`, `ndjson_write`, `ndjson_count`). |
+| `builder` | ✅ | Fluent JSON builder (`builder_object`, `builder_array`, `builder`). |
+
+Core parsing/serialization (`parse`, `stringify`, `pretty`, `minify`) always work.
+
+```bash
+# Full build (default)
+alya install
+alya test
+
+# Slim build (core only)
+alya install --no-default-features
+alya test --no-default-features
+```
+
 ---
 
 ## 🚀 Quick Start

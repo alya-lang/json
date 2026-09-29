@@ -12,6 +12,13 @@ keywords = ["alya", "alya-lang", "package", "json", "parser", "serializer", "jso
 
 [dependencies]
 
+[features]
+default = ["jsonpath", "schema", "ndjson", "builder"]
+jsonpath = []
+schema = []
+ndjson = []
+builder = []
+
 # [lint]
 # disabled_rules = []
 # exclude = []

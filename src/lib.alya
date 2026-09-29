@@ -7,9 +7,13 @@ import "./types.alya"
 import "./core/utils.alya"
 import "./core/parser.alya"
 import "./core/serializer.alya"
+@cfg(feature = "jsonpath")
 import "./core/jsonpath.alya"
+@cfg(feature = "schema")
 import "./core/schema.alya"
+@cfg(feature = "ndjson")
 import "./core/ndjson.alya"
+@cfg(feature = "builder")
 import "./core/builder.alya"
 
 # ═══════════════════════════════════════════════════════════════
@@ -52,46 +56,73 @@ pub function minify(text: string) -> string
 end
 
 ## Evaluates a dot-bracket JSONPath query against a JSON structure.
+## Requires the `jsonpath` feature (default-on).
+##
+@cfg(feature = "jsonpath")
 pub function query(data, path: string)
     return json_path_query(data, path)
 end
 
 ## Resolves a value using RFC 6901 JSON Pointer syntax (e.g. "/users/0/name").
+## Requires the `jsonpath` feature (default-on).
+##
+@cfg(feature = "jsonpath")
 pub function pointer(data, ptr: string)
     return json_pointer_get(data, ptr)
 end
 
 ## Validates data against a JSON Schema document, returning a ValidationResult.
+## Requires the `schema` feature (default-on).
+##
+@cfg(feature = "schema")
 pub function validate(data, schema) -> ValidationResult
     return json_validate(data, schema)
 end
 
 ## Validates data against a JSON Schema, returning 1 if valid or 0 if invalid.
+## Requires the `schema` feature (default-on).
+##
+@cfg(feature = "schema")
 pub function is_valid_schema(data, schema) -> int
     return json_is_valid_schema(data, schema)
 end
 
 ## Parses newline-delimited JSON (NDJSON) text into an array of parsed records.
+## Requires the `ndjson` feature (default-on).
+##
+@cfg(feature = "ndjson")
 pub function ndjson_read(text: string) -> array
     return ndjson_parse(text)
 end
 
 ## Serializes an array of records into a newline-delimited JSON (NDJSON) string.
+## Requires the `ndjson` feature (default-on).
+##
+@cfg(feature = "ndjson")
 pub function ndjson_write(records: array) -> string
     return ndjson_stringify(records)
 end
 
 ## Creates a new JsonBuilder configured for building a JSON Object.
+## Requires the `builder` feature (default-on).
+##
+@cfg(feature = "builder")
 pub function builder_object() -> JsonBuilder
     return json_builder_object()
 end
 
 ## Creates a new JsonBuilder configured for building a JSON Array.
+## Requires the `builder` feature (default-on).
+##
+@cfg(feature = "builder")
 pub function builder_array() -> JsonBuilder
     return json_builder_array()
 end
 
 ## Creates a new JsonBuilder with configurable container type (0 for Object, 1 for Array).
+## Requires the `builder` feature (default-on).
+##
+@cfg(feature = "builder")
 pub function builder(is_array: int = 0) -> JsonBuilder
     return make_json_builder(is_array)
 end

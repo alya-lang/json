@@ -3,6 +3,7 @@
 import "std/test"
 import "../src/lib.alya" as json
 
+@cfg(feature = "jsonpath")
 function main()
     test_suite("JSONPath and JSON Pointer Test Suite")
     let r = runner_new()
@@ -77,6 +78,18 @@ function main()
     runner_assert_eq(r, json::json_path_exists(doc, "store.unknown"), 0, "path store.unknown does not exist")
     runner_assert_eq(r, json::json_path_exists(doc, "users[99]"), 0, "out of bounds index does not exist")
 
+    let failed = runner_summary(r)
+    if failed > 0
+        exit(1)
+    end
+end
+
+# Needs the feature: register an empty suite so the file still
+# compiles and passes in slim views.
+@cfg(not(feature = "jsonpath"))
+function main()
+    test_suite("JSONPath and JSON Pointer Test Suite (skipped without jsonpath feature)")
+    let r = runner_new()
     let failed = runner_summary(r)
     if failed > 0
         exit(1)

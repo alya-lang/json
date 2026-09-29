@@ -3,6 +3,7 @@
 import "std/test"
 import "../src/lib.alya" as json
 
+@cfg(feature = "ndjson")
 function main()
     test_suite("NDJSON Streaming Test Suite")
     let r = runner_new()
@@ -52,6 +53,18 @@ function main()
     let empty_stringified = json::ndjson_stringify([])
     runner_assert_str_eq(r, empty_stringified, "", "empty list stringified is empty string")
 
+    let failed = runner_summary(r)
+    if failed > 0
+        exit(1)
+    end
+end
+
+# Needs the feature: register an empty suite so the file still
+# compiles and passes in slim views.
+@cfg(not(feature = "ndjson"))
+function main()
+    test_suite("NDJSON Streaming Test Suite (skipped without ndjson feature)")
+    let r = runner_new()
     let failed = runner_summary(r)
     if failed > 0
         exit(1)

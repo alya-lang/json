@@ -3,6 +3,7 @@
 import "std/test"
 import "../src/lib.alya" as json
 
+@cfg(feature = "schema")
 function main()
     test_suite("JSON Schema Validator Test Suite")
     let r = runner_new()
@@ -56,6 +57,18 @@ function main()
     let res_tags2 = json::validate(empty_tags, tags_schema)
     runner_assert_eq(r, res_tags2.res_valid, 0, "empty tags fails minItems 1")
 
+    let failed = runner_summary(r)
+    if failed > 0
+        exit(1)
+    end
+end
+
+# Needs the feature: register an empty suite so the file still
+# compiles and passes in slim views.
+@cfg(not(feature = "schema"))
+function main()
+    test_suite("JSON Schema Validator Test Suite (skipped without schema feature)")
+    let r = runner_new()
     let failed = runner_summary(r)
     if failed > 0
         exit(1)

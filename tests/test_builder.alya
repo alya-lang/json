@@ -3,6 +3,7 @@
 import "std/test"
 import "../src/lib.alya" as json
 
+@cfg(feature = "builder")
 function main()
     test_suite("Fluent JSON Builder Test Suite")
     let r = runner_new()
@@ -63,6 +64,18 @@ function main()
     runner_assert_str_eq(r, mobj["name"], "Modern Alya", "method add name")
     runner_assert_str_eq(r, mobj["version"], "0.0.18", "method add version")
 
+    let failed = runner_summary(r)
+    if failed > 0
+        exit(1)
+    end
+end
+
+# Needs the feature: register an empty suite so the file still
+# compiles and passes in slim views.
+@cfg(not(feature = "builder"))
+function main()
+    test_suite("Fluent JSON Builder Test Suite (skipped without builder feature)")
+    let r = runner_new()
     let failed = runner_summary(r)
     if failed > 0
         exit(1)
