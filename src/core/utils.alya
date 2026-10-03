@@ -2,13 +2,13 @@
 ## Part of the Alya Language package ecosystem (https://github.com/alya-lang)
 
 ## Checks if character is an ASCII decimal digit.
-pub function json_is_digit(ch: string) -> int
+pub function json_is_digit(ch: string) -> bool
     let c = ord(ch)
     return c >= 48 and c <= 57
 end
 
 ## Checks if character is an ASCII whitespace character.
-pub function json_is_whitespace(ch: string) -> int
+pub function json_is_whitespace(ch: string) -> bool
     return ch == " " or ch == "\t" or ch == "\n" or ch == "\r"
 end
 

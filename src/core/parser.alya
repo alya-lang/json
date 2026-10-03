@@ -227,7 +227,7 @@ pub function json_parse_array(text: string)
 end
 
 ## Validates whether a string is well-formed JSON according to RFC 8259.
-pub function json_is_valid(text: string) -> int
+pub function json_is_valid(text: string) -> bool
     let s = str_from_ptr(text)
     let slen = len(s)
     if slen == 0
@@ -361,7 +361,7 @@ pub function json_get_number(json_str: string, key: string)
 end
 
 ## Extracts a top-level boolean property value by key from a raw JSON string without full parsing.
-pub function json_get_bool(json_str: string, key: string) -> int
+pub function json_get_bool(json_str: string, key: string) -> bool
     let target = "\"{key}\""
     let slen = len(json_str)
     let tlen = len(target)

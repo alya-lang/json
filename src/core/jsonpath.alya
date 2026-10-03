@@ -183,7 +183,7 @@ pub function json_path_get(data, path: string)
 end
 
 ## Checks if a JSONPath expression resolves to a non-null value.
-pub function json_path_exists(data, path: string) -> int
+pub function json_path_exists(data, path: string) -> bool
     let val = json_path_query(data, path)
     if val is not null
         return true
