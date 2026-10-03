@@ -18,8 +18,7 @@ end
 
 # --- Primary Serialization Functions ---
 
-## Serializes the builder content into a compact JSON string.
-pub function to_json(builder: JsonBuilder) -> string
+function _builder_serialize_json(builder: JsonBuilder) -> string
     if builder.jb_is_array == 1
         let count = len(builder.jb_json_parts)
         if count == 0
@@ -59,9 +58,14 @@ pub function to_json(builder: JsonBuilder) -> string
     end
 end
 
+## Serializes the builder content into a compact JSON string.
+pub function to_json(builder: JsonBuilder) -> string
+    return _builder_serialize_json(builder)
+end
+
 ## Serializes the builder content into an indented, formatted JSON string.
 pub function to_pretty(builder: JsonBuilder, indent: int = 2) -> string
-    let s = to_json(builder)
+    let s = _builder_serialize_json(builder)
     return json_pretty(s, indent)
 end
 
@@ -150,9 +154,10 @@ pub function JsonBuilder.build(self: JsonBuilder)
 end
 
 pub function JsonBuilder.to_json(self: JsonBuilder) -> string
-    return to_json(self)
+    return _builder_serialize_json(self)
 end
 
 pub function JsonBuilder.to_pretty(self: JsonBuilder, indent: int = 2) -> string
-    return to_pretty(self, indent)
+    let s = _builder_serialize_json(self)
+    return json_pretty(s, indent)
 end

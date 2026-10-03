@@ -66,13 +66,15 @@ function _validate_scalar(val, schema, path, errors)
     # 4. String length checks
     if "minLength" in schema
         let min_len = schema["minLength"]
-        if len(val) < min_len
+        let s_val = str(val)
+        if len(s_val) < min_len
             errors.push(make_validation_error(path, "String length is less than minLength " + str(min_len), "minLength"))
         end
     end
     if "maxLength" in schema
         let max_len = schema["maxLength"]
-        if len(val) > max_len
+        let s_val = str(val)
+        if len(s_val) > max_len
             errors.push(make_validation_error(path, "String length is greater than maxLength " + str(max_len), "maxLength"))
         end
     end
