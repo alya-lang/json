@@ -13,16 +13,16 @@ function main()
     b.set_string("project", "Alya")
     b.set_int("stars", 1000)
     b.set_float("score", 9.5)
-    b.set_bool("ready", 1)
+    b.set_bool("ready", true)
     b.set_null("extra")
 
     let obj = b.build()
     runner_assert_str_eq(r, obj["project"], "Alya", "builder object has project")
     runner_assert_eq(r, obj["stars"], 1000, "builder object has stars")
-    runner_assert_eq(r, obj["ready"], 1, "builder object has ready")
-    let extra_is_null = 0
+    runner_assert_eq(r, obj["ready"], true, "builder object has ready")
+    let extra_is_null = false
     if obj["extra"] is null
-        extra_is_null = 1
+        extra_is_null = true
     end
     runner_assert(r, extra_is_null, "builder object has null extra")
 
@@ -30,13 +30,13 @@ function main()
     let ab = json::builder_array()
     ab.push_string("alpha")
     ab.push_int(42)
-    ab.push_bool(0)
+    ab.push_bool(false)
 
     let arr = ab.build()
     runner_assert_eq(r, len(arr), 3, "builder array has 3 elements")
     runner_assert_str_eq(r, arr[0], "alpha", "arr[0] is alpha")
     runner_assert_eq(r, arr[1], 42, "arr[1] is 42")
-    runner_assert_eq(r, arr[2], 0, "arr[2] is 0")
+    runner_assert_eq(r, arr[2], false, "arr[2] is 0")
 
     # 3. Serialization of builder objects
     let b_str = b.to_json()

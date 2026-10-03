@@ -8,18 +8,18 @@ import "./serializer.alya"
 
 ## Creates a new JsonBuilder configured for building a JSON Object.
 pub function json_builder_object() -> JsonBuilder
-    return make_json_builder(0)
+    return make_json_builder(false)
 end
 
 ## Creates a new JsonBuilder configured for building a JSON Array.
 pub function json_builder_array() -> JsonBuilder
-    return make_json_builder(1)
+    return make_json_builder(true)
 end
 
 # --- Primary Serialization Functions ---
 
 function _builder_serialize_json(builder: JsonBuilder) -> string
-    if builder.jb_is_array == 1
+    if builder.jb_is_array == true
         let count = len(builder.jb_json_parts)
         if count == 0
             return "[]"

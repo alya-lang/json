@@ -98,16 +98,16 @@ end
 ## ### Returns
 ## The new `JsonBuilder` instance.
 pub function make_json_builder(is_array: int = 0) -> JsonBuilder
-    if is_array == 1
+    if is_array == true
         return JsonBuilder {
             jb_data: [],
-            jb_is_array: 1,
+            jb_is_array: true,
             jb_json_parts: []
         }
     end
     return JsonBuilder {
         jb_data: {},
-        jb_is_array: 0,
+        jb_is_array: false,
         jb_json_parts: {}
     }
 end

@@ -74,9 +74,9 @@ function main()
     runner_assert_str_eq(r, tilde_val, "tilde_val", "pointer unescapes ~0 as ~")
 
     # 8. Existence checking
-    runner_assert_eq(r, json::json_path_exists(doc, "store.name"), 1, "path store.name exists")
-    runner_assert_eq(r, json::json_path_exists(doc, "store.unknown"), 0, "path store.unknown does not exist")
-    runner_assert_eq(r, json::json_path_exists(doc, "users[99]"), 0, "out of bounds index does not exist")
+    runner_assert_eq(r, json::json_path_exists(doc, "store.name"), true, "path store.name exists")
+    runner_assert_eq(r, json::json_path_exists(doc, "store.unknown"), false, "path store.unknown does not exist")
+    runner_assert_eq(r, json::json_path_exists(doc, "users[99]"), false, "out of bounds index does not exist")
 
     let failed = runner_summary(r)
     if failed > 0

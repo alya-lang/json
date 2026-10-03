@@ -13,8 +13,8 @@ function main()
     runner_assert_str_eq(r, json::json_number(42), "42", "json_number formats integer")
     runner_assert_str_eq(r, json::json_int(100), "100", "json_int formats integer")
     runner_assert_str_eq(r, json::json_null(), "null", "json_null returns 'null'")
-    runner_assert_str_eq(r, json::json_bool(1), "true", "json_bool 1 is 'true'")
-    runner_assert_str_eq(r, json::json_bool(0), "false", "json_bool 0 is 'false'")
+    runner_assert_str_eq(r, json::json_bool(true), "true", "json_bool 1 is 'true'")
+    runner_assert_str_eq(r, json::json_bool(false), "false", "json_bool 0 is 'false'")
     runner_assert_str_eq(r, json::json_kv("name", "\"Alya\""), "\"name\": \"Alya\"", "json_kv formats pair")
 
     # 2. Array serialization
@@ -23,7 +23,7 @@ function main()
     runner_assert_str_eq(r, json::json_array_of_numbers(num_arr), "[1, 2, 3]", "json_array_of_numbers")
     let str_arr = ["apple", "banana"]
     runner_assert_str_eq(r, json::json_array_of_strings(str_arr), "[\"apple\", \"banana\"]", "json_array_of_strings")
-    let bool_arr = [1, 0, 1]
+    let bool_arr = [true, false, true]
     runner_assert_str_eq(r, json::json_array_of_bools(bool_arr), "[true, false, true]", "json_array_of_bools")
 
     # 3. Object serialization

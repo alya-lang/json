@@ -63,7 +63,7 @@ end
 
 function _parser_parse_number(s, pos, slen)
     let start = pos[0]
-    let is_flt = 0
+    let is_flt = false
     if pos[0] < slen and (char_at(s, pos[0]) == "-" or char_at(s, pos[0]) == "+")
         pos[0] += 1
     end
@@ -75,10 +75,10 @@ function _parser_parse_number(s, pos, slen)
         else
             when ch
                 is "." then
-                    is_flt = 1
+                    is_flt = true
                     pos[0] += 1
                 is "e", "E" then
-                    is_flt = 1
+                    is_flt = true
                     pos[0] += 1
                     if pos[0] < slen and (char_at(s, pos[0]) == "+" or char_at(s, pos[0]) == "-")
                         pos[0] += 1
@@ -92,7 +92,7 @@ function _parser_parse_number(s, pos, slen)
         return 0
     end
     let num_str = s[start..pos[0]]
-    if is_flt == 1
+    if is_flt == true
         return float(num_str)
     else
         return int(num_str)
@@ -182,17 +182,17 @@ function _parser_parse_val(s, pos, slen)
         is "t" then
             if pos[0] + 4 <= slen and substring(s, pos[0], 4) == "true"
                 pos[0] += 4
-                return 1
+                return true
             end
             pos[0] += 1
-            return 1
+            return true
         is "f" then
             if pos[0] + 5 <= slen and substring(s, pos[0], 5) == "false"
                 pos[0] += 5
-                return 0
+                return false
             end
             pos[0] += 1
-            return 0
+            return false
         is "n" then
             if pos[0] + 4 <= slen and substring(s, pos[0], 4) == "null"
                 pos[0] += 4
@@ -231,24 +231,24 @@ pub function json_is_valid(text: string) -> int
     let s = str_from_ptr(text)
     let slen = len(s)
     if slen == 0
-        return 0
+        return false
     end
     let pos = [0]
     json_skip_ws(s, pos, slen)
     if pos[0] >= slen
-        return 0
+        return false
     end
     let ch = char_at(s, pos[0])
     let c = ord(ch)
     if ch != "{" and ch != "[" and ch != "\"" and ch != "t" and ch != "f" and ch != "n" and ch != "-" and ch != "+" and (c < 48 or c > 57)
-        return 0
+        return false
     end
     let _res = _parser_parse_val(s, pos, slen)
     json_skip_ws(s, pos, slen)
     if pos[0] == slen
-        return 1
+        return true
     end
-    return 0
+    return false
 end
 
 ## Extracts a top-level string property value by key from a raw JSON string without full parsing.
@@ -260,7 +260,7 @@ pub function json_get_string(json_str: string, key: string) -> string
     let pos = 0
     let start = 0
     let end_pos = 0
-    let escaped = 0
+    let escaped = false
     let c = ""
     while i <= slen - tlen
         if substring(json_str, i, tlen) == target
@@ -282,10 +282,10 @@ pub function json_get_string(json_str: string, key: string) -> string
                 while end_pos < slen
                     c = char_at(json_str, end_pos)
                     if escaped
-                        escaped = 0
+                        escaped = false
                     else
                         if c == "\\"
-                            escaped = 1
+                            escaped = true
                         else
                             if c == "\""
                                 break
@@ -312,7 +312,7 @@ pub function json_get_number(json_str: string, key: string)
     let num_str = ""
     let ch = ""
     let c = 0
-    let is_num_char = 0
+    let is_num_char = false
     while i <= slen - tlen
         if substring(json_str, i, tlen) == target
             pos = i + tlen
@@ -339,16 +339,16 @@ pub function json_get_number(json_str: string, key: string)
                 pos += 1
             end
             if len(num_str) > 0
-                let is_float_num = 0
+                let is_float_num = false
                 let ni = 0
                 while ni < len(num_str)
                     if char_at(num_str, ni) == "."
-                        is_float_num = 1
+                        is_float_num = true
                         break
                     end
                     ni += 1
                 end
-                if is_float_num == 1
+                if is_float_num == true
                     return float(num_str)
                 else
                     return int(num_str)
@@ -381,12 +381,12 @@ pub function json_get_bool(json_str: string, key: string) -> int
                 pos += 1
             end
             if pos + 4 <= slen and substring(json_str, pos, 4) == "true"
-                return 1
+                return true
             elif pos + 5 <= slen and substring(json_str, pos, 5) == "false"
-                return 0
+                return false
             end
         end
         i += 1
     end
-    return 0
+    return false
 end

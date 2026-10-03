@@ -20,7 +20,7 @@ function _validate_scalar(val, schema, path, errors)
                     return
                 end
             is "boolean" then
-                if val != 0 and val != 1
+                if val != false and val != true
                     errors.push(make_validation_error(path, "Expected boolean", "type"))
                     return
                 end
@@ -181,7 +181,7 @@ function _validate_node(data, schema, path, errors)
     # 5. Object additionalProperties check
     if "additionalProperties" in schema
         let add_prop = schema["additionalProperties"]
-        if add_prop == 0
+        if add_prop == false
             let declared_props = {}
             if "properties" in schema
                 declared_props = schema["properties"]
@@ -216,9 +216,9 @@ pub function json_validate(data, schema) -> ValidationResult
         else
             _validate_scalar(data, schema, "", errors)
     end
-    let is_valid = 0
+    let is_valid = false
     if len(errors) == 0
-        is_valid = 1
+        is_valid = true
     end
     return make_validation_result(is_valid, errors)
 end

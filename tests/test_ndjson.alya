@@ -21,12 +21,12 @@ function main()
     let r0 = records[0]
     runner_assert_eq(r, r0["id"], 1, "record 0 id is 1")
     runner_assert_str_eq(r, r0["name"], "Alice", "record 0 name is Alice")
-    runner_assert_eq(r, r0["active"], 1, "record 0 active is true (1)")
+    runner_assert_eq(r, r0["active"], true, "record 0 active is true (1)")
 
     let r1 = records[1]
     runner_assert_eq(r, r1["id"], 2, "record 1 id is 2")
     runner_assert_str_eq(r, r1["name"], "Bob", "record 1 name is Bob")
-    runner_assert_eq(r, r1["active"], 0, "record 1 active is false (0)")
+    runner_assert_eq(r, r1["active"], false, "record 1 active is false (0)")
 
     let r2 = records[2]
     runner_assert_eq(r, r2["id"], 3, "record 2 id is 3")

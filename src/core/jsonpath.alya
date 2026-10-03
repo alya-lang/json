@@ -6,23 +6,23 @@
 function _jsonpath_is_int(token)
     let tlen = len(token)
     if tlen == 0
-        return 0
+        return false
     end
     let i = 0
     if char_at(token, 0) == "-"
         if tlen == 1
-            return 0
+            return false
         end
         i = 1
     end
     while i < tlen
         let c = ord(char_at(token, i))
         if c < 48 or c > 57
-            return 0
+            return false
         end
         i += 1
     end
-    return 1
+    return true
 end
 
 function _jsonpath_split(path)
@@ -186,7 +186,7 @@ end
 pub function json_path_exists(data, path: string) -> int
     let val = json_path_query(data, path)
     if val is not null
-        return 1
+        return true
     end
-    return 0
+    return false
 end
