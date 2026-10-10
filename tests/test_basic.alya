@@ -67,7 +67,7 @@ function main()
     runner_assert_eq(r, json::is_valid("\"test\""), true, "valid string returns 1")
     runner_assert_eq(r, json::is_valid(""), false, "empty string returns 0")
     runner_assert_eq(r, json::is_valid("invalid json syntax"), false, "syntax error returns 0")
-    runner_assert_eq(r, json::is_valid("{unquoted: 1}"), false, "unquoted key returns 0")
+    runner_assert_eq(r, json::is_valid(f"{unquoted: 1}"), false, "unquoted key returns 0")
 
     # 8. Fast extractors
     let raw_json = "{\"status\": \"success\", \"code\": 200, \"verified\": true}"
