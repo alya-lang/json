@@ -136,13 +136,13 @@ function _validate_node(data, schema, path, errors)
     if "minItems" in schema
         let min_items = schema["minItems"]
         if len(data) < min_items
-            errors.push(make_validation_error(path, "Array item count is less than minItems {min_items}", "minItems"))
+            errors.push(make_validation_error(path, "Array item count is less than minItems " + str(min_items), "minItems"))
         end
     end
     if "maxItems" in schema
         let max_items = schema["maxItems"]
         if len(data) > max_items
-            errors.push(make_validation_error(path, "Array item count is greater than maxItems {max_items}", "maxItems"))
+            errors.push(make_validation_error(path, "Array item count is greater than maxItems " + str(max_items), "maxItems"))
         end
     end
     if "items" in schema
@@ -155,9 +155,9 @@ function _validate_node(data, schema, path, errors)
         for req_key in req_list
             if req_key not in data
                 if len(path) > 0
-                    errors.push(make_validation_error("{path}.{req_key}", "Missing required property: {req_key}", "required"))
+                    errors.push(make_validation_error(path + "." + req_key, "Missing required property: " + req_key, "required"))
                 else
-                    errors.push(make_validation_error(req_key, "Missing required property: {req_key}", "required"))
+                    errors.push(make_validation_error(req_key, "Missing required property: " + req_key, "required"))
                 end
             end
         end
@@ -170,7 +170,7 @@ function _validate_node(data, schema, path, errors)
         for p_key in prop_keys
             if p_key in data
                 if len(path) > 0
-                    _validate_property(data[p_key], props[p_key], "{path}.{p_key}", errors)
+                    _validate_property(data[p_key], props[p_key], path + "." + p_key, errors)
                 else
                     _validate_property(data[p_key], props[p_key], p_key, errors)
                 end
@@ -178,10 +178,11 @@ function _validate_node(data, schema, path, errors)
         end
     end
 
-    # 5. Object additionalProperties check
+    # 5. Object additionalProperties check (accepts both false and 0:
+    # older toolchains conflated bool/int in comparisons)
     if "additionalProperties" in schema
         let add_prop = schema["additionalProperties"]
-        if add_prop == false
+        if add_prop == false or add_prop == 0
             let declared_props = {}
             if "properties" in schema
                 declared_props = schema["properties"]
@@ -190,9 +191,9 @@ function _validate_node(data, schema, path, errors)
             for d_key in data_keys
                 if d_key not in declared_props
                     if len(path) > 0
-                        errors.push(make_validation_error("{path}.{d_key}", "Additional property not allowed: {d_key}", "additionalProperties"))
+                        errors.push(make_validation_error(path + "." + d_key, "Additional property not allowed: " + d_key, "additionalProperties"))
                     else
-                        errors.push(make_validation_error(d_key, "Additional property not allowed: {d_key}", "additionalProperties"))
+                        errors.push(make_validation_error(d_key, "Additional property not allowed: " + d_key, "additionalProperties"))
                     end
                 end
             end

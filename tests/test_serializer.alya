@@ -3,6 +3,11 @@
 import "std/test"
 import "../src/lib.alya" as json
 
+# Untyped passthrough: forces the generic (unspecialized) encoder path.
+function stringify_indirect(v)
+    return json::stringify(v)
+end
+
 function main()
     test_suite("JSON Serializer Test Suite")
     let r = runner_new()
@@ -63,13 +68,18 @@ function main()
     runner_assert_str_eq(r, json::stringify({"name": "Alya"}), "{\"name\": \"Alya\"}", "stringify flat map")
     runner_assert_str_eq(r, json::stringify([1, "two", null]), "[1, \"two\", null]", "stringify mixed array")
     runner_assert_str_eq(r, json::stringify({"tags": ["a", "b"]}), "{\"tags\": [\"a\", \"b\"]}", "stringify nested array")
-    runner_assert_str_eq(r, json::stringify({"user": {"name": "Ada"}}), "{\"user\": {\"name\": \"Ada\"}}", "stringify nested map")
+    runner_assert_str_eq(r, json::stringify({"user": {"name": "Ada"}}), "{\"user\": {\"name\": \"Ada\"}" + "}", "stringify nested map")
 
     let doc = {"ok": "true", "n": 3, "tags": ["x", "y"], "nil": null}
     let wire = json::stringify(doc)
     runner_assert_eq(r, json::is_valid(wire), 1, "stringify output is valid JSON")
     let back = json::parse(wire)
     runner_assert_str_eq(r, json::stringify(back), wire, "stringify/parse roundtrip is stable")
+
+    # 8. Generic call chains keep holes working (untyped passthrough must
+    # not poison interpolation file-wide; see alya-lang/alya#157)
+    runner_assert_str_eq(r, stringify_indirect({"ok": "yes"}), "{\"ok\": \"yes\"}", "indirect stringify")
+    runner_assert_str_eq(r, stringify_indirect([1, "two", null]), "[1, \"two\", null]", "indirect mixed array")
 
     let failed = runner_summary(r)
     if failed > 0

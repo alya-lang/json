@@ -13,7 +13,7 @@ end
 ## Wraps a string in double quotes with JSON escaping.
 pub function json_string(s: string) -> string
     let esc = json_escape(s)
-    return "\"{esc}\""
+    return "\"" + esc + "\""
 end
 
 ## Formats a numeric value without quotes.
@@ -36,12 +36,12 @@ pub function json_float(n) -> string
     end
     let frac = int(fv * 1000000.0 + 0.5)
     if frac == 0
-        return "{iv}.0"
+        return str(iv) + ".0"
     end
     while frac % 10 == 0
         frac /= 10
     end
-    return "{iv}.{frac}"
+    return str(iv) + "." + str(frac)
 end
 
 ## Returns the JSON null literal.
@@ -61,7 +61,7 @@ end
 pub function json_kv(key: string, val) -> string
     let ek = json_escape(key)
     let val_str = str(val)
-    return "\"{ek}\": {val_str}"
+    return "\"" + ek + "\": " + val_str
 end
 
 ## Formats an array with raw element values.
@@ -149,7 +149,7 @@ pub function json_object(m) -> string
         end
         let ek = json_escape(key)
         let val_str = str(val)
-        res += "\"{ek}\": {val_str}"
+        res += "\"" + ek + "\": " + val_str
         i += 1
     end
     res += "}"
@@ -264,7 +264,7 @@ pub function json_string_map(m) -> string
         end
         let ek = json_escape(key)
         let ev = json_escape(val)
-        res += "\"{ek}\": \"{ev}\""
+        res += "\"" + ek + "\": \"" + ev + "\""
         i += 1
     end
     res += "}"

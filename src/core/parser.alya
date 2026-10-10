@@ -253,7 +253,7 @@ end
 
 ## Extracts a top-level string property value by key from a raw JSON string without full parsing.
 pub function json_get_string(json_str: string, key: string) -> string
-    let target = "\"{key}\""
+    let target = "\"" + key + "\""
     let slen = len(json_str)
     let tlen = len(target)
     let i = 0
@@ -304,7 +304,7 @@ end
 
 ## Extracts a top-level numeric property value by key from a raw JSON string without full parsing.
 pub function json_get_number(json_str: string, key: string)
-    let target = "\"{key}\""
+    let target = "\"" + key + "\""
     let slen = len(json_str)
     let tlen = len(target)
     let i = 0
@@ -362,7 +362,7 @@ end
 
 ## Extracts a top-level boolean property value by key from a raw JSON string without full parsing.
 pub function json_get_bool(json_str: string, key: string) -> bool
-    let target = "\"{key}\""
+    let target = "\"" + key + "\""
     let slen = len(json_str)
     let tlen = len(target)
     let i = 0

@@ -50,7 +50,7 @@ function _builder_serialize_json(builder: JsonBuilder) -> string
             let key = k[i]
             let ek = json_escape(key)
             let part = builder.jb_json_parts[key]
-            res += "\"{ek}\": {part}"
+            res += "\"" + ek + "\": " + part
             i += 1
         end
         res += "}"
