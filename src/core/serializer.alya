@@ -161,6 +161,94 @@ pub function json_map(m) -> string
     return json_object(m)
 end
 
+## Checks whether a value is a list object.
+##
+## Shared helper (not inlined per caller) so the compiler cannot fold the
+## `is array` check to a constant when callers pass different static kinds
+## (see alya-lang/alya#70).
+##
+## ### Returns
+## `1` for arrays, `0` otherwise.
+pub function json_is_list(v) -> bool
+    if v is array
+        return true
+    end
+    return false
+end
+
+## Checks whether a value is a map object.
+##
+## Shared helper (see `json_is_list` for why this must stay a call).
+##
+## ### Returns
+## `1` for maps, `0` otherwise.
+pub function json_is_map(v) -> bool
+    if v is map
+        return true
+    end
+    return false
+end
+
+# Address-range heap probe without header dereference (mirrors Lib/yaml
+# `is_heap_pointer`). Strings, arrays, and maps live on the heap while
+# ints, floats, and bools are immediates, so this separates leaf scalars
+# from heap values without risking the header-read fault noted in the
+# language spec (Ch.02 decidability matrix).
+function _json_is_heap(v) -> bool
+    if v is null or v == 0
+        return false
+    end
+    if v < 65536
+        return false
+    end
+    if v > 140737488355327
+        return false
+    end
+    return true
+end
+
+## Recursively encodes any native value into compact JSON.
+##
+## Maps and arrays nest to any depth (acyclic values only); strings are
+## quoted and escaped; `null` renders as `null`; numbers render bare.
+## Booleans share the int encoding, so `true`/`false` render as `1`/`0`.
+pub function json_encode(val) -> string
+    if val is null
+        return "null"
+    end
+    if json_is_list(val) == true
+        let res = "["
+        let i = 0
+        for item in val
+            if i > 0
+                res += ", "
+            end
+            res += json_encode(item)
+            i += 1
+        end
+        res += "]"
+        return res
+    end
+    if json_is_map(val) == true
+        let res = "{"
+        let first = true
+        for key, item in val
+            if first == false
+                res += ", "
+            else
+                first = false
+            end
+            res += "\"" + json_escape(key) + "\": " + json_encode(item)
+        end
+        res += "}"
+        return res
+    end
+    if _json_is_heap(val) == true
+        return json_string(str(val))
+    end
+    return str(val)
+end
+
 ## Formats a map with all values quoted as strings.
 pub function json_string_map(m) -> string
     let k = keys(m)
@@ -292,7 +380,10 @@ pub function json_pretty(s: string, indent_spaces: int = 2) -> string
     return res
 end
 
-## Converts an arbitrary value to its string form.
+## Converts an arbitrary value to its compact JSON form.
+## Maps and arrays are encoded recursively; strings are quoted and
+## escaped; `null` renders as `null`; numbers render bare. Acyclic
+## values only. Booleans share the int encoding and render as `1`/`0`.
 pub function json_stringify(val) -> string
-    return str(val)
+    return json_encode(val)
 end

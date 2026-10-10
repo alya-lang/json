@@ -41,6 +41,8 @@ pub function is_valid(text: string) -> int
 end
 
 ## Serializes an Alya value into a compact JSON string.
+## Maps and arrays nest recursively; strings are quoted and escaped.
+## Booleans share the int encoding and render as `1`/`0`.
 pub function stringify(val) -> string
     return json_stringify(val)
 end

@@ -139,7 +139,7 @@ main()
 ### Serialization & Formatting
 | Function | Arguments | Returns | Description |
 |---|---|---|---|
-| `stringify(val)` | `val: any` | `string` | Serializes scalar, array, or object into JSON format. |
+| `stringify(val)` | `val: any` | `string` | Recursively serializes scalars, arrays, and objects into JSON (strings quoted/escaped; bools render as `1`/`0`). |
 | `pretty(val, indent)` | `val: string, indent = 2` | `string` | Formats JSON text with visual hierarchy and indentation. |
 | `minify(text)` | `text: string` | `string` | Strips extraneous whitespace while preserving string content. |
 | `json_object(m)` | `m: Map` | `string` | Serializes a native Map to JSON object string. |

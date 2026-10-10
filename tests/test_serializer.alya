@@ -52,6 +52,25 @@ function main()
     let parsed_back_num = json::parse(serialized_num)
     runner_assert_eq(r, parsed_back_num, original_num, "roundtrip number preservation")
 
+    # 7. Recursive stringify of arbitrary values (map order is not
+    # stable, so multi-key maps use membership asserts)
+    runner_assert_str_eq(r, json::stringify(null), "null", "stringify null")
+    runner_assert_str_eq(r, json::stringify(42), "42", "stringify int")
+    runner_assert_str_eq(r, json::stringify("hi"), "\"hi\"", "stringify quotes strings")
+    runner_assert_str_eq(r, json::stringify("a\"b"), "\"a\\\"b\"", "stringify escapes quotes")
+    runner_assert_str_eq(r, json::stringify({}), "{}", "stringify empty map")
+    runner_assert_str_eq(r, json::stringify([]), "[]", "stringify empty array")
+    runner_assert_str_eq(r, json::stringify({"name": "Alya"}), "{\"name\": \"Alya\"}", "stringify flat map")
+    runner_assert_str_eq(r, json::stringify([1, "two", null]), "[1, \"two\", null]", "stringify mixed array")
+    runner_assert_str_eq(r, json::stringify({"tags": ["a", "b"]}), "{\"tags\": [\"a\", \"b\"]}", "stringify nested array")
+    runner_assert_str_eq(r, json::stringify({"user": {"name": "Ada"}}), "{\"user\": {\"name\": \"Ada\"}}", "stringify nested map")
+
+    let doc = {"ok": "true", "n": 3, "tags": ["x", "y"], "nil": null}
+    let wire = json::stringify(doc)
+    runner_assert_eq(r, json::is_valid(wire), 1, "stringify output is valid JSON")
+    let back = json::parse(wire)
+    runner_assert_str_eq(r, json::stringify(back), wire, "stringify/parse roundtrip is stable")
+
     let failed = runner_summary(r)
     if failed > 0
         exit(1)
