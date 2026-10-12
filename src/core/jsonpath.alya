@@ -183,10 +183,121 @@ pub function json_path_get(data, path: string)
 end
 
 ## Checks if a JSONPath expression resolves to a non-null value.
+##
+## Presence is structural, not value-based: missing keys and
+## out-of-bounds indexes fail even though untagged reads yield 0.
+## Present zero/false values currently also read as absent — parsed 0,
+## false, null and missing keys are mutually indistinguishable to
+## predicates (see alya-lang/alya#171); that resolves itself once the
+## toolchain distinguishes them.
 pub function json_path_exists(data, path: string) -> bool
-    let val = json_path_query(data, path)
-    if val is not null
+    if len(path) == 0
+        return false
+    end
+    if char_at(path, 0) == "/"
+        return _json_pointer_exists(data, path)
+    end
+    let tokens = _jsonpath_split(path)
+    return _json_tokens_exist(data, tokens, 0)
+end
+
+## Structural descent for json_path_exists, mirroring _json_eval_tokens.
+##
+## Container checks use native `is` so parser-produced values classify
+## correctly (see alya-lang/alya#171).
+function _json_tokens_exist(curr, tokens, idx) -> bool
+    if idx >= len(tokens)
+        if curr == null
+            return false
+        end
         return true
     end
+    let tok = str_from_ptr(tokens[idx])
+    if tok == "*"
+        if idx + 1 >= len(tokens)
+            if curr is list
+                return len(curr) > 0
+            end
+            if curr is map
+                return len(keys(curr)) > 0
+            end
+            return false
+        end
+        if curr is list
+            for item in curr
+                if _json_tokens_exist(item, tokens, idx + 1)
+                    return true
+                end
+            end
+        elif curr is map
+            for k in keys(curr)
+                if _json_tokens_exist(curr[k], tokens, idx + 1)
+                    return true
+                end
+            end
+        end
+        return false
+    end
+    if _jsonpath_is_int(tok)
+        if curr is list
+            let i = int(tok)
+            let n = len(curr)
+            if i < 0
+                i += n
+            end
+            if i >= 0 and i < n
+                return _json_tokens_exist(curr[i], tokens, idx + 1)
+            end
+        end
+        return false
+    end
+    if curr is map
+        if tok in curr
+            return _json_tokens_exist(curr[tok], tokens, idx + 1)
+        end
+    end
     return false
+end
+
+## Structural descent for RFC 6901 pointers, mirroring json_pointer_get.
+function _json_pointer_exists(data, pointer: string) -> bool
+    if len(pointer) == 0
+        return false
+    end
+    if char_at(pointer, 0) != "/"
+        return false
+    end
+    let parts = pointer.split("/")
+    let curr = data
+    let i = 1
+    while i < len(parts)
+        let part = _json_pointer_unescape(parts[i])
+        if _jsonpath_is_int(part)
+            if curr is list
+                let idx = int(part)
+                if idx >= 0 and idx < len(curr)
+                    curr = curr[idx]
+                else
+                    return false
+                end
+            else
+                return false
+            end
+        else
+            if curr is map
+                if part in curr
+                    curr = curr[part]
+                else
+                    return false
+                end
+            else
+                return false
+            end
+        end
+        i += 1
+    end
+    if curr == null
+        return false
+    end
+    return true
 end
